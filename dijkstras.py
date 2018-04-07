@@ -18,7 +18,7 @@ def dijkstra(graph,src,dest,visited=[],distances={},predecessors={}):
         pred = dest
         while pred != None:
             path.append(pred)
-            pred=predecessors.get(pred, None)
+            pred = predecessors.get(pred, None)
         
         print('\n\n') 
         print('shortest path: '+str(path)+" cost="+str(distances[dest]))
@@ -59,8 +59,8 @@ def dijkstra(graph,src,dest,visited=[],distances={},predecessors={}):
 
 
 if __name__ == "__main__":
-    #import sys;sys.argv = ['', 'Test.testName']
-    #unittest.main()
+    
+    # For undirected graphs, repeat the edges
     graph = {'s': {'a': 2, 'c': 10},
             'a': {'s': 2, 'b': 7, 'c':9},
             'b': {'a': 7, 'c': 10},
