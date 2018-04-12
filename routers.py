@@ -9,6 +9,13 @@ import glob
 import os
 import time
 
+# -----------------------------------------------------------------------------
+# This class can be instantiated to create a multithreaded server multithreaded 
+# -----------------------------------------------------------------------------
+class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
+    """Handle requests in a separate thread."""
+
+
 # Network layout of the routers as given in the project description
 graph = {
     'A': {'B': 4, 'C': 3, 'E': 7},
