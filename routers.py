@@ -9,13 +9,6 @@ import glob
 import os
 import time
 
-# -----------------------------------------------------------------------------
-# This class can be instantiated to create a multithreaded server multithreaded 
-# -----------------------------------------------------------------------------
-class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
-    """Handle requests in a separate thread."""
-
-
 # Network layout of the routers as given in the project description
 graph = {
     'A': {'B': 4, 'C': 3, 'E': 7},
@@ -52,5 +45,56 @@ routerNameAndPort = {
     'H': 8008
 }
 
+# Everything should be local, make sure all ports are under this IP
+localHost = "127.0.0.1"
+
+# -----------------------------------------------------------------------------
+# This class can be instantiated to create a multithreaded server multithreaded 
+# -----------------------------------------------------------------------------
+class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
+    """Handle requests in a separate thread."""
+
+class RequestHandlerA(BaseHTTPRequestHandler):
+    def do_GET(self):
+                
+        self.send_response(200)
+        self.end_headers()
+
+        print("\n-------------------- Done Processing -----------------------\n\n") 
+
+        return
+
+def ThreadRouterA (e):
+    try:
+        httpServer = ThreadedHTTPServer((localHost, 8000), RequestHandlerA)
+        httpServer.timeout = 0.01
+        httpServer.daemon_threads = True
+
+        while not e.isSet():
+            httpServer.handle_request()
+               
+    # Upon encountering a keyboard interrupt, close the server before existing 
+    except:
+        print('Problem')
 
 
+
+
+if __name__ == '__main__':
+    try:
+        exitEvent = threading.Event() # Set this upon keyboard interrupt to let the threads know they have to exit
+        exitEvent.clear()             # Make sure the evebt is clear initially
+        
+        A = threading.Thread(target=ThreadRouterA, args=(exitEvent,))
+        A.start()
+    except:
+        print ("Error: unable to start thread")
+
+    try:
+        # Run forever till keyboard interrupt is caught
+        while True:
+            pass
+    except KeyboardInterrupt:
+        exitEvent.set()  # Upon catching keyboard interrupt, let the threads know they have to exit
+        A.join()         # Wait till thread A finishes
+        sys.exit()
