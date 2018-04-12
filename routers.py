@@ -13,11 +13,23 @@ graph = {
         }
 
 # Calculating the shortest paths to and from
-pathAnnToJan = dijkstras.dijkstras(graph,'A','F', visited=[], distances={}, predecessors={})
-pathJanToAnn = dijkstras.dijkstras(graph,'F','A', visited=[], distances={}, predecessors={})
+pathAnnToJan = dijkstras.dijkstras(graph,'F','A', visited=[], distances={}, predecessors={})
+pathJanToAnn = pathAnnToJan[::-1]
+
+pathJanToChan = dijkstras.dijkstras(graph,'E','F', visited=[], distances={}, predecessors={})
+pathChanToJan = pathJanToChan[::-1]
+
+pathAnnToChan = dijkstras.dijkstras(graph,'E','A', visited=[], distances={}, predecessors={})
+pathChanToAnn = pathAnnToChan[::-1]
 
 print(pathAnnToJan)
 print(pathJanToAnn)
+
+print(pathJanToChan)
+print(pathChanToJan)
+
+print(pathAnnToChan)
+print(pathChanToAnn)
 
 
 
