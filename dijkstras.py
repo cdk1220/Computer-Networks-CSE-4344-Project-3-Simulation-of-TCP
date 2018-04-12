@@ -1,7 +1,7 @@
 
 # Code obtained from the following website
 # http://www.gilles-bertrand.com/2014/03/dijkstra-algorithm-python-example-source-code-shortest-path.html
-def dijkstra(graph,src,dest,visited=[],distances={},predecessors={}):
+def dijkstras(graph,src,dest,visited=[],distances={},predecessors={}):
     """ calculates a shortest path tree routed in src """    
     
     # a few sanity checks
@@ -20,9 +20,6 @@ def dijkstra(graph,src,dest,visited=[],distances={},predecessors={}):
             path.append(pred)
             pred = predecessors.get(pred, None)
         return path
-        print('\n\n') 
-        print('shortest path: '+str(path)+" cost="+str(distances[dest]))
-        print('\n\n') 
     else :     
         
         # if it is the initial run, initializes the cost
@@ -54,7 +51,7 @@ def dijkstra(graph,src,dest,visited=[],distances={},predecessors={}):
                 unvisited[k] = distances.get(k, float('inf'))        
         
         x = min(unvisited, key = unvisited.get)
-        path = dijkstra(graph, x, dest, visited, distances, predecessors)
+        path = dijkstras(graph, x, dest, visited, distances, predecessors)
         return path        
 
 
