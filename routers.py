@@ -59,12 +59,15 @@ class RequestHandlerA(BaseHTTPRequestHandler):
     def do_GET(self):     
         self.send_response(200)
         self.end_headers()
-
+        return
+    
+    def log_message(self, format, *args):
         return
 
 def ThreadRouter (exitEvent, routerName):
     try:
         httpServer = ThreadedHTTPServer((localHost, routerNameAndPort.get(routerName)), RequestHandlerA)
+       
         httpServer.timeout = 0.01           # Make sure not to wait too long when serving requests
         httpServer.daemon_threads = True    # So that handle_request thread exits when current thread exits
 
