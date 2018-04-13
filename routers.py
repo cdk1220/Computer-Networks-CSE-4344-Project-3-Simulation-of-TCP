@@ -48,6 +48,7 @@ routerNameAndPort = {
 # Everything should be local, make sure all ports are under this IP
 localHost = "127.0.0.1"
 
+
 # -----------------------------------------------------------------------------
 # This class can be instantiated to create a multithreaded server multithreaded 
 # -----------------------------------------------------------------------------
@@ -55,27 +56,26 @@ class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
     """Handle requests in a separate thread."""
 
 class RequestHandlerA(BaseHTTPRequestHandler):
-    def do_GET(self):
-                
+    def do_GET(self):     
         self.send_response(200)
         self.end_headers()
 
-        print("\n-------------------- Done Processing -----------------------\n\n") 
-
         return
 
-def ThreadRouterA (e):
+def ThreadRouter (exitEvent, routerName):
     try:
-        httpServer = ThreadedHTTPServer((localHost, 8000), RequestHandlerA)
-        httpServer.timeout = 0.01
-        httpServer.daemon_threads = True
+        httpServer = ThreadedHTTPServer((localHost, routerNameAndPort.get(routerName)), RequestHandlerA)
+        httpServer.timeout = 0.01           # Make sure not to wait too long when serving requests
+        httpServer.daemon_threads = True    # So that handle_request thread exits when current thread exits
 
-        while not e.isSet():
-            httpServer.handle_request()
-               
-    # Upon encountering a keyboard interrupt, close the server before existing 
+        # Poll so that you see the signal to exit as opposed to calling server_forever
+        while not exitEvent.isSet():
+            httpServer.handle_request()              
     except:
-        print('Problem')
+        print('Problem creating router' + routerName + '.')
+    
+    httpServer.server_close()
+    sys.exit()
 
 
 
@@ -85,16 +85,48 @@ if __name__ == '__main__':
         exitEvent = threading.Event() # Set this upon keyboard interrupt to let the threads know they have to exit
         exitEvent.clear()             # Make sure the evebt is clear initially
         
-        A = threading.Thread(target=ThreadRouterA, args=(exitEvent,))
+        # Create as many threads as the number of routers
+        A = threading.Thread(target=ThreadRouter, args=(exitEvent, 'A'))
+        B = threading.Thread(target=ThreadRouter, args=(exitEvent, 'B'))
+        C = threading.Thread(target=ThreadRouter, args=(exitEvent, 'C'))
+        D = threading.Thread(target=ThreadRouter, args=(exitEvent, 'D'))
+        E = threading.Thread(target=ThreadRouter, args=(exitEvent, 'E'))
+        F = threading.Thread(target=ThreadRouter, args=(exitEvent, 'F'))
+        G = threading.Thread(target=ThreadRouter, args=(exitEvent, 'G'))
+        L = threading.Thread(target=ThreadRouter, args=(exitEvent, 'L'))
+        H = threading.Thread(target=ThreadRouter, args=(exitEvent, 'H'))
+
+        # Start the routers
         A.start()
+        B.start()
+        C.start()
+        D.start()
+        E.start()
+        F.start()
+        G.start()
+        L.start()
+        H.start()
     except:
-        print ("Error: unable to start thread")
+        print ("Error: unable to start routers.")
+
 
     try:
+
         # Run forever till keyboard interrupt is caught
         while True:
             pass
     except KeyboardInterrupt:
         exitEvent.set()  # Upon catching keyboard interrupt, let the threads know they have to exit
-        A.join()         # Wait till thread A finishes
+        
+        # Wait for all routers to finish
+        A.join()
+        B.join()
+        C.join()
+        D.join()
+        E.join()
+        F.join()
+        G.join()
+        L.join() 
+        H.join()
+                
         sys.exit()
