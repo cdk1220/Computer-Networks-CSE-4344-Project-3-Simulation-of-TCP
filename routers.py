@@ -55,18 +55,28 @@ localHost = "127.0.0.1"
 class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
     """Handle requests in a separate thread."""
 
-class RequestHandlerA(BaseHTTPRequestHandler):
-    def do_GET(self):     
-        self.send_response(200)
-        self.end_headers()
-        return
-    
-    def log_message(self, format, *args):
-        return
+
+def CustomHandler(routerName):
+    class RequestHandler(BaseHTTPRequestHandler):
+        def do_GET(self):     
+            self.send_response(200)
+            self.end_headers()
+
+            # Send acknoledgement
+
+            # Observe the packet, identify what router the packet is at and send it to the next router, if not do something???????
+            print(routerName)
+            return
+        
+        def log_message(self, format, *args):
+            return
+
+    return RequestHandler
 
 def ThreadRouter (exitEvent, routerName):
     try:
-        httpServer = ThreadedHTTPServer((localHost, routerNameAndPort.get(routerName)), RequestHandlerA)
+        RequestHandler = CustomHandler(routerName)
+        httpServer = ThreadedHTTPServer((localHost, routerNameAndPort.get(routerName)), RequestHandler)
        
         httpServer.timeout = 0.01           # Make sure not to wait too long when serving requests
         httpServer.daemon_threads = True    # So that handle_request thread exits when current thread exits
