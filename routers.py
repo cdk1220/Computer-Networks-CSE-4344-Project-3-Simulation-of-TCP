@@ -69,10 +69,10 @@ def TCPHandler(routerName):
             # self.request is the TCP socket connected to the client
             data = self.request.recv(1024)
             
-            print(data)            
+            print(routerName)            
             return
 
-    return TCPHandler
+    return RequestHandler
 
 
 # -----------------------------------------------------
@@ -81,18 +81,18 @@ def TCPHandler(routerName):
 def ThreadRouter (exitEvent, routerName):
     try:
         RequestHandler = TCPHandler(routerName)
-        httpServer = ThreadedTCPServer((localHost, routerNameAndPort.get(routerName)), RequestHandler)
+        server = ThreadedTCPServer((localHost, routerNameAndPort.get(routerName)), RequestHandler)
        
-        httpServer.timeout = 0.01           # Make sure not to wait too long when serving requests
-        httpServer.daemon_threads = True    # So that handle_request thread exits when current thread exits
+        server.timeout = 0.01           # Make sure not to wait too long when serving requests
+        server.daemon_threads = True    # So that handle_request thread exits when current thread exits
 
         # Poll so that you see the signal to exit as opposed to calling server_forever
         while not exitEvent.isSet():
-            httpServer.handle_request()              
+            server.handle_request()              
     except:
         print('Problem creating router' + routerName + '.')
     
-    httpServer.server_close()
+    server.server_close()
     sys.exit()
 
 
