@@ -61,22 +61,18 @@ class ThreadedTCPServer(ThreadingMixIn, TCPServer):
 # -----------------------------------------------------
 # Request handler for the server portion of the routers
 # -----------------------------------------------------
-def CustomHandler(routerName):
-    class RequestHandler(BaseHTTPRequestHandler):
-        def do_GET(self):     
-            self.send_response(200)
-            self.end_headers()
-
-            # Send acknoledgement
-
-            # Observe the packet, identify what router the packet is at and send it to the next router, if not do something???????
-            print(routerName)
-            return
+def TCPHandler(routerName):
+    class RequestHandler(BaseRequestHandler):
         
-        def log_message(self, format, *args):
+        def handle(self):
+        
+            # self.request is the TCP socket connected to the client
+            data = self.request.recv(1024)
+            
+            print(data)            
             return
 
-    return RequestHandler
+    return TCPHandler
 
 
 # -----------------------------------------------------
