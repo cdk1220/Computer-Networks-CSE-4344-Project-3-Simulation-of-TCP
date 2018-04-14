@@ -80,7 +80,7 @@ def TCPHandler(routerName):
 # -----------------------------------------------------
 def ThreadRouter (exitEvent, routerName):
     try:
-        RequestHandler = CustomHandler(routerName)
+        RequestHandler = TCPHandler(routerName)
         httpServer = ThreadedTCPServer((localHost, routerNameAndPort.get(routerName)), RequestHandler)
        
         httpServer.timeout = 0.01           # Make sure not to wait too long when serving requests
