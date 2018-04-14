@@ -5,6 +5,7 @@ import threading
 import sys
 import time
 import socket
+import pickle
 
 
 # ---------------------------
@@ -68,8 +69,10 @@ def TCPHandler(routerName):
         
             # self.request is the TCP socket connected to the client
             data = self.request.recv(1024)
+            packet = pickle.loads(data)
             
-            print(routerName)            
+            print(packet)
+            self.request.sendall(b'got it')            
             return
 
     return RequestHandler
