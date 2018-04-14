@@ -1,13 +1,10 @@
 import dijkstras
 
-from http.server import HTTPServer, BaseHTTPRequestHandler
-from socketserver import ThreadingMixIn
+from socketserver import ThreadingMixIn, TCPServer, BaseRequestHandler
 import threading
 import sys
-from urllib.parse import urlparse
-import glob
-import os
 import time
+import socket
 
 
 # ---------------------------
@@ -57,26 +54,22 @@ localHost = "127.0.0.1"
 # -----------------------------------------------------------------------------
 # This class can be instantiated to create a multithreaded server multithreaded 
 # -----------------------------------------------------------------------------
-class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
+class ThreadedTCPServer(ThreadingMixIn, TCPServer):
     """Handle requests in a separate thread."""
     
 
 # -----------------------------------------------------
 # Request handler for the server portion of the routers
 # -----------------------------------------------------
-def CustomHandler(routerName):
-    class RequestHandler(BaseHTTPRequestHandler):
-        def do_GET(self):     
-            self.send_response(200)
-            self.end_headers()
-
-            # Send acknoledgement
-
-            # Observe the packet, identify what router the packet is at and send it to the next router, if not do something???????
-            print(routerName)
-            return
+def TCPHandler(routerName):
+    class RequestHandler(BaseRequestHandler):
         
-        def log_message(self, format, *args):
+        def handle(self):
+        
+            # self.request is the TCP socket connected to the client
+            data = self.request.recv(1024)
+            
+            print(routerName)            
             return
 
     return RequestHandler
@@ -87,19 +80,19 @@ def CustomHandler(routerName):
 # -----------------------------------------------------
 def ThreadRouter (exitEvent, routerName):
     try:
-        RequestHandler = CustomHandler(routerName)
-        httpServer = ThreadedHTTPServer((localHost, routerNameAndPort.get(routerName)), RequestHandler)
+        RequestHandler = TCPHandler(routerName)
+        server = ThreadedTCPServer((localHost, routerNameAndPort.get(routerName)), RequestHandler)
        
-        httpServer.timeout = 0.01           # Make sure not to wait too long when serving requests
-        httpServer.daemon_threads = True    # So that handle_request thread exits when current thread exits
+        server.timeout = 0.01           # Make sure not to wait too long when serving requests
+        server.daemon_threads = True    # So that handle_request thread exits when current thread exits
 
         # Poll so that you see the signal to exit as opposed to calling server_forever
         while not exitEvent.isSet():
-            httpServer.handle_request()              
+            server.handle_request()              
     except:
         print('Problem creating router' + routerName + '.')
     
-    httpServer.server_close()
+    server.server_close()
     sys.exit()
 
 
