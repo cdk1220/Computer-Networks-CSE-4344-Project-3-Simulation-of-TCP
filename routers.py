@@ -9,6 +9,11 @@ import glob
 import os
 import time
 
+
+# ---------------------------
+# Router and Path Information
+# ---------------------------
+
 # Network layout of the routers as given in the project description
 graph = {
     'A': {'B': 4, 'C': 3, 'E': 7},
@@ -54,8 +59,11 @@ localHost = "127.0.0.1"
 # -----------------------------------------------------------------------------
 class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
     """Handle requests in a separate thread."""
+    
 
-
+# -----------------------------------------------------
+# Request handler for the server portion of the routers
+# -----------------------------------------------------
 def CustomHandler(routerName):
     class RequestHandler(BaseHTTPRequestHandler):
         def do_GET(self):     
@@ -73,6 +81,10 @@ def CustomHandler(routerName):
 
     return RequestHandler
 
+
+# -----------------------------------------------------
+# Function for the router threads to exit
+# -----------------------------------------------------
 def ThreadRouter (exitEvent, routerName):
     try:
         RequestHandler = CustomHandler(routerName)
@@ -124,7 +136,6 @@ if __name__ == '__main__':
 
 
     try:
-
         # Run forever till keyboard interrupt is caught
         while True:
             pass
