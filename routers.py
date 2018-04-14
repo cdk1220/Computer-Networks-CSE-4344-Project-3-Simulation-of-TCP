@@ -1,13 +1,10 @@
 import dijkstras
 
-from http.server import HTTPServer, BaseHTTPRequestHandler
-from socketserver import ThreadingMixIn
+from socketserver import ThreadingMixIn, TCPServer, BaseRequestHandler
 import threading
 import sys
-from urllib.parse import urlparse
-import glob
-import os
 import time
+import socket
 
 
 # ---------------------------
