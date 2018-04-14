@@ -54,7 +54,7 @@ localHost = "127.0.0.1"
 # -----------------------------------------------------------------------------
 # This class can be instantiated to create a multithreaded server multithreaded 
 # -----------------------------------------------------------------------------
-class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
+class ThreadedTCPServer(ThreadingMixIn, TCPServer):
     """Handle requests in a separate thread."""
     
 
@@ -85,7 +85,7 @@ def CustomHandler(routerName):
 def ThreadRouter (exitEvent, routerName):
     try:
         RequestHandler = CustomHandler(routerName)
-        httpServer = ThreadedHTTPServer((localHost, routerNameAndPort.get(routerName)), RequestHandler)
+        httpServer = ThreadedTCPServer((localHost, routerNameAndPort.get(routerName)), RequestHandler)
        
         httpServer.timeout = 0.01           # Make sure not to wait too long when serving requests
         httpServer.daemon_threads = True    # So that handle_request thread exits when current thread exits
