@@ -27,12 +27,18 @@ graph = {
 
 # Calculating the shortest paths to and from
 pathAnnToJan = helper.dijkstras(graph,'F','A', visited=[], distances={}, predecessors={})
+pathAnnToJan.insert(0, 'Ann')
+pathAnnToJan.append('Jan')
 pathJanToAnn = pathAnnToJan[::-1]
 
 pathJanToChan = helper.dijkstras(graph,'E','F', visited=[], distances={}, predecessors={})
+pathJanToChan.insert(0, 'Jan')
+pathJanToChan.append('Chan')
 pathChanToJan = pathJanToChan[::-1]
 
 pathAnnToChan = helper.dijkstras(graph,'E','A', visited=[], distances={}, predecessors={})
+pathAnnToChan.insert(0, 'Ann')
+pathAnnToChan.append('Chan')
 pathChanToAnn = pathAnnToChan[::-1]
 
 # Dictionary for names and associated port numbers
