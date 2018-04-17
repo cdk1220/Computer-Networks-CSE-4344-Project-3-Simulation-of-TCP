@@ -1,4 +1,4 @@
-import dijkstras
+import helper
 
 from socketserver import ThreadingMixIn, TCPServer, BaseRequestHandler
 import threading
@@ -26,13 +26,13 @@ graph = {
 
 
 # Calculating the shortest paths to and from
-pathAnnToJan = dijkstras.dijkstras(graph,'F','A', visited=[], distances={}, predecessors={})
+pathAnnToJan = helper.dijkstras(graph,'F','A', visited=[], distances={}, predecessors={})
 pathJanToAnn = pathAnnToJan[::-1]
 
-pathJanToChan = dijkstras.dijkstras(graph,'E','F', visited=[], distances={}, predecessors={})
+pathJanToChan = helper.dijkstras(graph,'E','F', visited=[], distances={}, predecessors={})
 pathChanToJan = pathJanToChan[::-1]
 
-pathAnnToChan = dijkstras.dijkstras(graph,'E','A', visited=[], distances={}, predecessors={})
+pathAnnToChan = helper.dijkstras(graph,'E','A', visited=[], distances={}, predecessors={})
 pathChanToAnn = pathAnnToChan[::-1]
 
 # Dictionary for router name and associated port number
@@ -78,9 +78,9 @@ def TCPHandler(routerName):
     return RequestHandler
 
 
-# -----------------------------------------------------
-# Function for the router threads to exit
-# -----------------------------------------------------
+# ------------------------------------------
+# Function for the router threads to execute
+# ------------------------------------------
 def ThreadRouter (exitEvent, routerName):
     try:
         RequestHandler = TCPHandler(routerName)
