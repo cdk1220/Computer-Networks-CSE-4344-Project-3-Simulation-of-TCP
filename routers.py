@@ -35,8 +35,8 @@ pathChanToJan = pathJanToChan[::-1]
 pathAnnToChan = helper.dijkstras(graph,'E','A', visited=[], distances={}, predecessors={})
 pathChanToAnn = pathAnnToChan[::-1]
 
-# Dictionary for router name and associated port number
-routerNameAndPort = {
+# Dictionary for names and associated port numbers
+namesAndPorts = {
     'A': 8000,
     'B': 8001,
     'C': 8002,
@@ -45,7 +45,10 @@ routerNameAndPort = {
     'F': 8005,
     'G': 8006,
     'L': 8007,
-    'H': 8008
+    'H': 8008,
+    'Ann': 1111,
+    'Jan': 1100,
+    'Chan': 1001
 }
 
 # Everything should be local, make sure all ports are under this IP
@@ -69,10 +72,31 @@ def TCPHandler(routerName):
         
             # self.request is the TCP socket connected to the client
             data = self.request.recv(1024)
-            packet = pickle.loads(data)
-            
-            print(packet)
-            self.request.sendall(b'got it')            
+            data = data.decode()
+
+            print(data)
+            print(routerName + '\n\n\n')
+
+            # Identify who the packet is to
+            if data == "To Jan":
+
+                # Identify which router the packet is at and send it to the next relevant
+                nextRouterIndex = pathAnnToJan.index(routerName) + 1
+
+                # Make sure not to get index out of bounds
+                if nextRouterIndex < len(pathAnnToJan):
+                    nextRouterName = pathAnnToJan[nextRouterIndex]
+                    nextRouterPort = namesAndPorts.get(nextRouterName)  
+
+                    try:
+                        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                        
+                        # Connect to server and send data
+                        sock.connect((localHost, nextRouterPort))
+                        data = "To Jan"
+                        sock.sendall(data.encode())
+                    finally:
+                        sock.close()    
             return
 
     return RequestHandler
@@ -84,7 +108,7 @@ def TCPHandler(routerName):
 def ThreadRouter (exitEvent, routerName):
     try:
         RequestHandler = TCPHandler(routerName)
-        server = ThreadedTCPServer((localHost, routerNameAndPort.get(routerName)), RequestHandler)
+        server = ThreadedTCPServer((localHost, namesAndPorts.get(routerName)), RequestHandler)
        
         server.timeout = 0.01           # Make sure not to wait too long when serving requests
         server.daemon_threads = True    # So that handle_request thread exits when current thread exits
