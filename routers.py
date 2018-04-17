@@ -91,11 +91,12 @@ def ThreadRouter (exitEvent, routerName):
 
         # Poll so that you see the signal to exit as opposed to calling server_forever
         while not exitEvent.isSet():
-            server.handle_request()              
+            server.handle_request()     
+
+        server.server_close()         
     except:
         print('Problem creating router' + routerName + '.')
     
-    server.server_close()
     sys.exit()
 
 
