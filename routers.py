@@ -77,15 +77,14 @@ def TCPHandler(routerName):
         def handle(self):
         
             # self.request is the TCP socket connected to the client
-            data = self.request.recv(1024)
-            data = data.decode()
+            data = self.request.recv(4096)
+            packet = pickle.loads(data)
+            print(packet)
+            sourceID = packet.get('sourceID')
+            destinationID = packet.get('destnID')
 
-            print(data)
-            print(routerName + '\n\n\n')
-
-            # Identify who the packet is to
-            if data == "To Jan":
-
+            # Packet is from Ann to Jan
+            if sourceID == namesAndPorts.get('Ann') and destinationID == namesAndPorts.get('Jan'):
                 # Identify which router the packet is at and send it to the next relevant
                 nextRouterIndex = pathAnnToJan.index(routerName) + 1
 
@@ -99,10 +98,39 @@ def TCPHandler(routerName):
                         
                         # Connect to server and send data
                         sock.connect((localHost, nextRouterPort))
-                        data = "To Jan"
-                        sock.sendall(data.encode())
+                        sock.sendall(data)
+                    
+                    except ConnectionRefusedError:
+                        print(nextRouterName + " is offline.")
+
+
                     finally:
-                        sock.close()    
+                        sock.close()
+            
+            # Packet is from Jan to Ann
+            elif sourceID == namesAndPorts.get('Jan') and destinationID == namesAndPorts.get('Ann'):    
+                pass
+            
+            # Packet is from Jan to Chan
+            elif sourceID == namesAndPorts.get('Jan') and destinationID == namesAndPorts.get('Chan'):    
+                pass
+
+            # Packet is from Chan to Jan
+            elif sourceID == namesAndPorts.get('Chan') and destinationID == namesAndPorts.get('Jan'):    
+                pass
+
+            # Packet is from Ann to Chan
+            elif sourceID == namesAndPorts.get('Ann') and destinationID == namesAndPorts.get('Chan'):    
+                pass
+            
+            # Packet is from Jan to Ann
+            elif sourceID == namesAndPorts.get('Chan') and destinationID == namesAndPorts.get('Ann'):    
+                pass
+            
+            # Packet has no right direction
+            else:
+                print('Packet has no right direction')
+
             return
 
     return RequestHandler
