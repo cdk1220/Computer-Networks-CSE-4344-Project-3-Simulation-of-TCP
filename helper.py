@@ -52,7 +52,29 @@ def dijkstras(graph,src,dest,visited=[],distances={},predecessors={}):
         
         x = min(unvisited, key = unvisited.get)
         path = dijkstras(graph, x, dest, visited, distances, predecessors)
-        return path        
+        return path
+
+# creates a TCP packet with the necessary fields 
+def TCP_Packet(source, destination, data):
+    # creates an empty dict    
+    packet = {}
+    # gets the length of the data
+    data_size = len(data)
+    # increases the data size to create the ack number     
+    ackNo = data_size + 1
+    # create a 5 digit random number for the seq number 
+    seqNo = random.randint(10000,99999)
+    # append all the fields to the dictionary 
+    packet.update({'sourceID':source})
+    packet.update({'destnID':destination})
+    packet.update({'ackNo':ackNo})
+    packet.update({'seqNo':seqNo})
+    packet.update({'data':data})
+
+
+    # return the packet dictionary 
+    return packet
+      
 
 
 
