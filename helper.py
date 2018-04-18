@@ -1,3 +1,4 @@
+import random
 
 # Code obtained from the following website
 # http://www.gilles-bertrand.com/2014/03/dijkstra-algorithm-python-example-source-code-shortest-path.html
