@@ -55,25 +55,37 @@ def dijkstras(graph,src,dest,visited=[],distances={},predecessors={}):
         path = dijkstras(graph, x, dest, visited, distances, predecessors)
         return path
 
-# creates a TCP packet with the necessary fields 
-def TCP_Packet(source, destination, data):
-    # creates an empty dict    
+
+# Creates a TCP packet with the necessary fields 
+def CreateTCPPacket(sourceID, destinationID, sequenceNumber, data, urgentPointer, synBit, finBit, headerLength):
+    
+    # Creates an empty dict    
     packet = {}
-    # gets the length of the data
-    data_size = len(data)
-    # increases the data size to create the ack number     
-    ackNo = data_size + 1
-    # create a 5 digit random number for the seq number 
-    seqNo = random.randint(10000,99999)
-    # append all the fields to the dictionary 
-    packet.update({'sourceID':source})
-    packet.update({'destnID':destination})
-    packet.update({'ackNo':ackNo})
-    packet.update({'seqNo':seqNo})
-    packet.update({'data':data})
+    
+    # Gets the length of the data
+    dataSize = len(data)
+    
+    # Ackknowledgment number is the next byte that the receiving end is expecting   
+    acknowledgementNumber = sequenceNumber + dataSize
 
+    # Calculates the checksum on the data part
+    checksum = None
 
-    # return the packet dictionary 
+    # Lets the receiver know if the packet is has to deliver urgent data
+    urgentPointer = urgentPointer
+    
+    # Append all the fields to the dictionary 
+    packet.update({'Source ID': sourceID})
+    packet.update({'Destination ID': destinationID})
+    packet.update({'Sequence Number': sequenceNumber})
+    packet.update({'Acknowledgement Number': acknowledgementNumber})
+    packet.update({'Data': data})
+    packet.update({'Checksum': checksum})
+    packet.update({'Urgent Pointer': urgentPointer})
+    packet.update({'Syn Bit': synBit})
+    packet.update({'Fin Bit': finBit})
+    packet.update({'Header Length': headerLength})
+
     return packet
       
 
