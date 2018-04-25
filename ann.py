@@ -21,8 +21,8 @@ pathToAnnToChanFile = './Supplemental Text Files/Ann/Ann-_Chan.txt'
 pathToAnnToJanFile = './Supplemental Text Files/Ann/Ann-_Jan.txt'
 
 # Paths to where the resulting log files from communication will be stored
-pathToAnnToChanLogFile = './Supplemental Text Files/Ann/AnnToChanLog.txt'
-pathToAnnToJanLogFile = './Supplemental Text Files/Ann/AnnToJanLog.txt'
+pathToAnnToChanLogFile = './Supplemental Text Files/Ann/ChanToAnnLog.txt'
+pathToAnnToJanLogFile = './Supplemental Text Files/Ann/JanToAnnLog.txt'
 
 # Sequence Numbers for initial packets
 initialSequenceNumberAnnToJan = random.randint(10000, 99999)
@@ -32,6 +32,9 @@ initialSequenceNumberAnnToChan = random.randint(10000, 99999)
 packetSentAnnToJan = False
 packetSentAnnToChan = False
 
+# Reading communication material from the text files
+contentAnnToJan = helper.ReadFile(pathToAnnToJanFile)
+contentAnnToChan = helper.ReadFile(pathToAnnToChanFile)
 
 # ---------------------------------------------------------------
 # This class can be instantiated to create a multithreaded server
