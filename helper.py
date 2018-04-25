@@ -3,7 +3,7 @@ import random
 # Code obtained from the following website
 # http://www.gilles-bertrand.com/2014/03/dijkstra-algorithm-python-example-source-code-shortest-path.html
 # Gives the shortest path between two given nodes in a graph
-def dijkstras(graph,src,dest,visited=[],distances={},predecessors={}):
+def Dijkstras(graph,src,dest,visited=[],distances={},predecessors={}):
     """ calculates a shortest path tree routed in src """    
     
     # a few sanity checks
@@ -53,7 +53,7 @@ def dijkstras(graph,src,dest,visited=[],distances={},predecessors={}):
                 unvisited[k] = distances.get(k, float('inf'))        
         
         x = min(unvisited, key = unvisited.get)
-        path = dijkstras(graph, x, dest, visited, distances, predecessors)
+        path = Dijkstras(graph, x, dest, visited, distances, predecessors)
         return path
 
 
@@ -93,17 +93,28 @@ def CreateTCPPacket(sourceID, destinationID, sequenceNumber, data, urgentPointer
 # Code obtained from the following website
 # https://stackoverflow.com/questions/1767910/checksum-udp-calculation-python
 # Computes internet checksum
-def checksum(msg):
+def Checksum(msg):
     s = 0
     for i in range(0, len(msg), 2):
         w = ord(msg[i]) + (ord(msg[i+1]) << 8)
-        s = carry_around_add(s, w)
+        s = CarryAroundAdd(s, w)
     return ~s & 0xffff
 
 # Helper function for the checksum function which was obtained from the same website
-def carry_around_add(a, b):
+def CarryAroundAdd(a, b):
     c = a + b
     return (c & 0xffff) + (c >> 16)
+
+
+# Helper function that reads a given file and return the content
+def ReadFile(path):
+    with open(path, 'r') as file:
+        content = file.readlines()
+    
+    return content
+
+if __name__ == '__main__':
+    print(ReadFile('./Supplemental Text Files/Ann/Ann-_Chan.txt'))
 
 
 
