@@ -135,6 +135,14 @@ def WriteToLogFile(path, mode, timeStamp, data):
         file.write(data)
 
 
+# Helper function to get the dictionary key given its corresponding value
+def GetKeyFromValue(value):
+    for key in namesAndPorts:
+        if namesAndPorts.get(key) == value:
+            return key
+
+
+
 
 
    
