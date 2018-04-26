@@ -18,12 +18,16 @@ portListeningTo = 1100
 portTalkingTo = 8000
 
 # Path to where the communication files are stored 
-pathToJanToAnnFile = './Supplemental Text Files/Ann/Jan-_Ann.txt'
-pathToJanToChanFile = './Supplemental Text Files/Ann/Jan-_Chan.txt'
+pathToJanToAnnFile = './Supplemental Text Files/Jan/Jan-_Ann.txt'
+pathToJanToChanFile = './Supplemental Text Files/Jan/Jan-_Chan.txt'
 
 # Path to where the communication files are stored when recieved 
-pathToJanToAnnLogFile = './Supplemental Text Files/Ann/JanToAnnLog.txt'
-pathToJanToChanLogFile = './Supplemental Text Files/Ann/JanToChanLog.txt'
+pathToJanToAnnLogFile = './Supplemental Text Files/Jan/AnnToJanLog.txt'
+pathToJanToChanLogFile = './Supplemental Text Files/Jan/ChanToJanLog.txt'
+
+# Flag variables to check and see if a packet is sent only after receiving the acknowledgement 
+packetSentJanToAnn = False
+packetSentJanToChan = False
 
 # read the content inside each of the files
 contentJanToAnn = helper.ReadFile(pathToJanToAnnFile)
