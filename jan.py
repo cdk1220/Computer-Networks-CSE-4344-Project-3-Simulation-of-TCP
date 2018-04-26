@@ -7,6 +7,7 @@ import time
 import socket
 import pickle
 
+
 # Everything should be local, make sure all ports are under this IP
 localHost = "127.0.0.1"
 
@@ -15,6 +16,21 @@ portListeningTo = 1100
 
 # Ann will always be dumping her messages to the router she is connected to
 portTalkingTo = 8000
+
+# Path to where the communication files are stored 
+pathToJanToAnnFile = './Supplemental Text Files/Ann/Jan-_Ann.txt'
+pathToJanToChanFile = './Supplemental Text Files/Ann/Jan-_Chan.txt'
+
+# Path to where the communication files are stored when recieved 
+pathToJanToAnnLogFile = './Supplemental Text Files/Ann/JanToAnnLog.txt'
+pathToJanToChanLogFile = './Supplemental Text Files/Ann/JanToChanLog.txt'
+
+# read the content inside each of the files
+contentJanToAnn = helper.ReadFile(pathToJanToAnnFile)
+contentJanToChan = helper.ReadFile(pathToJanToChanFile)
+
+
+
 
 # ---------------------------------------------------------------
 # This class can be instantiated to create a multithreaded server
