@@ -51,6 +51,22 @@ class TCPRequestHandler(BaseRequestHandler):
     
         # self.request is the TCP socket connected to the client
         data = self.request.recv(1024)
+
+        # When someone else is trying to setup connection with us
+        if data.get('Syn Bit') == 1 and data.get('Acknowledgement Number') == -1:
+            # Send TCP packet with syn bit still one and acknowledgement number as 1 + sequence number. Also, create your own sequence number
+
+        # Your attempt to setup connection with someone else has been responded to
+        elif data.get('Syn Bit') == 1:
+            # Start sending data here and raise the flag to wait for acknowledgement
+        
+        # If ackknowledgement is 0, that means someone is sending data to you
+        elif data.get('Acknowledgement Number') == 0:
+            # Send ackknowledgement
+        
+        # Any other case, is receiving acknowledgement, send next piece of data
+        else:
+            # Delete the head of the list. Send next element raise flag
         
         print(data)
         # self.request.sendall(b'got it')            
