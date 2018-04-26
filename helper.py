@@ -1,5 +1,21 @@
 import random
 
+# Dictionary for names and associated port numbers
+namesAndPorts = {
+    'A': 8000,
+    'B': 8001,
+    'C': 8002,
+    'D': 8003,
+    'E': 8004,
+    'F': 8005,
+    'G': 8006,
+    'L': 8007,
+    'H': 8008,
+    'Ann': 1111,
+    'Jan': 1100,
+    'Chan': 1001
+}
+
 # Code obtained from the following website
 # http://www.gilles-bertrand.com/2014/03/dijkstra-algorithm-python-example-source-code-shortest-path.html
 # Gives the shortest path between two given nodes in a graph

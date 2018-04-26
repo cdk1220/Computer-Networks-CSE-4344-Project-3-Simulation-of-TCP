@@ -41,22 +41,6 @@ pathAnnToChan.insert(0, 'Ann')
 pathAnnToChan.append('Chan')
 pathChanToAnn = pathAnnToChan[::-1]
 
-# Dictionary for names and associated port numbers
-namesAndPorts = {
-    'A': 8000,
-    'B': 8001,
-    'C': 8002,
-    'D': 8003,
-    'E': 8004,
-    'F': 8005,
-    'G': 8006,
-    'L': 8007,
-    'H': 8008,
-    'Ann': 1111,
-    'Jan': 1100,
-    'Chan': 1001
-}
-
 # Everything should be local, make sure all ports are under this IP
 localHost = "127.0.0.1"
 
@@ -84,14 +68,14 @@ def TCPHandler(routerName):
             destinationID = packet.get('destnID')
 
             # Packet is from Ann to Jan
-            if sourceID == namesAndPorts.get('Ann') and destinationID == namesAndPorts.get('Jan'):
+            if sourceID == helper.namesAndPorts.get('Ann') and destinationID == helper.namesAndPorts.get('Jan'):
                 # Identify which router the packet is at and send it to the next relevant
                 nextRouterIndex = pathAnnToJan.index(routerName) + 1
 
                 # Make sure not to get index out of bounds
                 if nextRouterIndex < len(pathAnnToJan):
                     nextRouterName = pathAnnToJan[nextRouterIndex]
-                    nextRouterPort = namesAndPorts.get(nextRouterName)  
+                    nextRouterPort = helper.namesAndPorts.get(nextRouterName)  
 
                     try:
                         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -108,23 +92,23 @@ def TCPHandler(routerName):
                         sock.close()
             
             # Packet is from Jan to Ann
-            elif sourceID == namesAndPorts.get('Jan') and destinationID == namesAndPorts.get('Ann'):    
+            elif sourceID == helper.namesAndPorts.get('Jan') and destinationID == helper.namesAndPorts.get('Ann'):    
                 pass
             
             # Packet is from Jan to Chan
-            elif sourceID == namesAndPorts.get('Jan') and destinationID == namesAndPorts.get('Chan'):    
+            elif sourceID == helper.namesAndPorts.get('Jan') and destinationID == helper.namesAndPorts.get('Chan'):    
                 pass
 
             # Packet is from Chan to Jan
-            elif sourceID == namesAndPorts.get('Chan') and destinationID == namesAndPorts.get('Jan'):    
+            elif sourceID == helper.namesAndPorts.get('Chan') and destinationID == helper.namesAndPorts.get('Jan'):    
                 pass
 
             # Packet is from Ann to Chan
-            elif sourceID == namesAndPorts.get('Ann') and destinationID == namesAndPorts.get('Chan'):    
+            elif sourceID == helper.namesAndPorts.get('Ann') and destinationID == helper.namesAndPorts.get('Chan'):    
                 pass
             
             # Packet is from Jan to Ann
-            elif sourceID == namesAndPorts.get('Chan') and destinationID == namesAndPorts.get('Ann'):    
+            elif sourceID == helper.namesAndPorts.get('Chan') and destinationID == helper.namesAndPorts.get('Ann'):    
                 pass
             
             # Packet has no right direction
@@ -142,7 +126,7 @@ def TCPHandler(routerName):
 def ThreadRouter (exitEvent, routerName):
     try:
         RequestHandler = TCPHandler(routerName)
-        server = ThreadedTCPServer((localHost, namesAndPorts.get(routerName)), RequestHandler)
+        server = ThreadedTCPServer((localHost, helper.namesAndPorts.get(routerName)), RequestHandler)
        
         server.timeout = 0.01           # Make sure not to wait too long when serving requests
         server.daemon_threads = True    # So that handle_request thread exits when current thread exits
