@@ -74,19 +74,13 @@ def Dijkstras(graph,src,dest,visited=[],distances={},predecessors={}):
 
 
 # Creates a TCP packet with the necessary fields 
-def CreateTCPPacket(sourceID, destinationID, sequenceNumber, data, urgentPointer, synBit, finBit, headerLength):
+def CreateTCPPacket(sourceID, destinationID, acknowledgementNumber, sequenceNumber, data, urgentPointer, synBit, finBit, rstBit, terBit, headerLength):
     
     # Creates an empty dict    
     packet = {}
     
-    # Gets the length of the data
-    dataSize = len(data)
-    
-    # Ackknowledgment number is the next byte that the receiving end is expecting   
-    acknowledgementNumber = sequenceNumber + dataSize
-
     # Calculates the checksum on the data part
-    checksum = None
+    checksum = Checksum(data)
 
     # Lets the receiver know if the packet is has to deliver urgent data
     urgentPointer = urgentPointer
@@ -101,6 +95,8 @@ def CreateTCPPacket(sourceID, destinationID, sequenceNumber, data, urgentPointer
     packet.update({'Urgent Pointer': urgentPointer})
     packet.update({'Syn Bit': synBit})
     packet.update({'Fin Bit': finBit})
+    packet.update({'Rst Bit': rstBit})
+    packet.update({'Ter Bit': terBit})
     packet.update({'Header Length': headerLength})
 
     return packet
