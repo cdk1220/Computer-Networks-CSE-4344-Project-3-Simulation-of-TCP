@@ -61,14 +61,15 @@ def TCPHandler(routerName):
         def handle(self):
         
             # self.request is the TCP socket connected to the client
-            data = self.request.recv(4096)
-            packet = pickle.loads(data)
+            packetOnTheWay = self.request.recv(4096)
+            packet = pickle.loads(packetOnTheWay)
             print(packet)
             sourceID = packet.get('sourceID')
             destinationID = packet.get('destnID')
 
             # Packet is from Ann to Jan
             if sourceID == helper.namesAndPorts.get('Ann') and destinationID == helper.namesAndPorts.get('Jan'):
+                
                 # Identify which router the packet is at and send it to the next relevant
                 nextRouterIndex = pathAnnToJan.index(routerName) + 1
 
@@ -87,29 +88,128 @@ def TCPHandler(routerName):
                     except ConnectionRefusedError:
                         print(nextRouterName + " is offline.")
 
-
                     finally:
                         sock.close()
             
             # Packet is from Jan to Ann
             elif sourceID == helper.namesAndPorts.get('Jan') and destinationID == helper.namesAndPorts.get('Ann'):    
-                pass
+                
+                # Identify which router the packet is at and send it to the next relevant
+                nextRouterIndex = pathJanToAnn.index(routerName) + 1
+
+                # Make sure not to get index out of bounds
+                if nextRouterIndex < len(pathJanToAnn):
+                    nextRouterName = pathJanToAnn[nextRouterIndex]
+                    nextRouterPort = helper.namesAndPorts.get(nextRouterName)  
+
+                    try:
+                        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                        
+                        # Connect to server and send data
+                        sock.connect((localHost, nextRouterPort))
+                        sock.sendall(data)
+                    
+                    except ConnectionRefusedError:
+                        print(nextRouterName + " is offline.")
+
+                    finally:
+                        sock.close()
             
             # Packet is from Jan to Chan
             elif sourceID == helper.namesAndPorts.get('Jan') and destinationID == helper.namesAndPorts.get('Chan'):    
-                pass
+                
+                # Identify which router the packet is at and send it to the next relevant
+                nextRouterIndex = pathJanToChan.index(routerName) + 1
+
+                # Make sure not to get index out of bounds
+                if nextRouterIndex < len(pathJanToChan):
+                    nextRouterName = pathJanToChan[nextRouterIndex]
+                    nextRouterPort = helper.namesAndPorts.get(nextRouterName)  
+
+                    try:
+                        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                        
+                        # Connect to server and send data
+                        sock.connect((localHost, nextRouterPort))
+                        sock.sendall(data)
+                    
+                    except ConnectionRefusedError:
+                        print(nextRouterName + " is offline.")
+
+                    finally:
+                        sock.close()
 
             # Packet is from Chan to Jan
             elif sourceID == helper.namesAndPorts.get('Chan') and destinationID == helper.namesAndPorts.get('Jan'):    
-                pass
+                
+                # Identify which router the packet is at and send it to the next relevant
+                nextRouterIndex = pathChanToJan.index(routerName) + 1
+
+                # Make sure not to get index out of bounds
+                if nextRouterIndex < len(pathChanToJan):
+                    nextRouterName = pathChanToJan[nextRouterIndex]
+                    nextRouterPort = helper.namesAndPorts.get(nextRouterName)  
+
+                    try:
+                        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                        
+                        # Connect to server and send data
+                        sock.connect((localHost, nextRouterPort))
+                        sock.sendall(data)
+                    
+                    except ConnectionRefusedError:
+                        print(nextRouterName + " is offline.")
+
+                    finally:
+                        sock.close()
 
             # Packet is from Ann to Chan
             elif sourceID == helper.namesAndPorts.get('Ann') and destinationID == helper.namesAndPorts.get('Chan'):    
-                pass
+                
+                # Identify which router the packet is at and send it to the next relevant
+                nextRouterIndex = pathAnnToChan.index(routerName) + 1
+
+                # Make sure not to get index out of bounds
+                if nextRouterIndex < len(pathAnnToChan):
+                    nextRouterName = pathAnnToChan[nextRouterIndex]
+                    nextRouterPort = helper.namesAndPorts.get(nextRouterName)  
+
+                    try:
+                        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                        
+                        # Connect to server and send data
+                        sock.connect((localHost, nextRouterPort))
+                        sock.sendall(data)
+                    
+                    except ConnectionRefusedError:
+                        print(nextRouterName + " is offline.")
+
+                    finally:
+                        sock.close()
             
             # Packet is from Jan to Ann
             elif sourceID == helper.namesAndPorts.get('Chan') and destinationID == helper.namesAndPorts.get('Ann'):    
-                pass
+                
+                # Identify which router the packet is at and send it to the next relevant
+                nextRouterIndex = pathChanToAnn.index(routerName) + 1
+
+                # Make sure not to get index out of bounds
+                if nextRouterIndex < len(pathChanToAnn):
+                    nextRouterName = pathChanToAnn[nextRouterIndex]
+                    nextRouterPort = helper.namesAndPorts.get(nextRouterName)  
+
+                    try:
+                        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                        
+                        # Connect to server and send data
+                        sock.connect((localHost, nextRouterPort))
+                        sock.sendall(data)
+                    
+                    except ConnectionRefusedError:
+                        print(nextRouterName + " is offline.")
+
+                    finally:
+                        sock.close()
             
             # Packet has no right direction
             else:
