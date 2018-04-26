@@ -129,6 +129,12 @@ if __name__ == '__main__':
     print(ReadFile('./Supplemental Text Files/Ann/Ann-_Chan.txt'))
 
 
+# Helper function to write log messages to the relevant log file
+def WriteToLogFile(path, mode, timeStamp, data):
+    with open(path, mode) as file:
+        file.write(data)
+
+
 
 
    
