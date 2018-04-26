@@ -130,7 +130,7 @@ if __name__ == '__main__':
 
 
 # Helper function to write log messages to the relevant log file
-def WriteToLogFile(path, mode, timeStamp, data):
+def WriteToLogFile(path, mode, data):
     with open(path, mode) as file:
         file.write(data)
 
