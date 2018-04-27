@@ -84,7 +84,8 @@ def CreateTCPPacket(sourceID, destinationID, acknowledgementNumber, sequenceNumb
 
     # Lets the receiver know if the packet is has to deliver urgent data
     urgentPointer = urgentPointer
-    
+    # header length is equal to the size of everything in the packet but the data 
+    headerLength = len(str(sourceID)) + len(str(destinationID)) + len(str(acknowledgementNumber)) + + len(str(sequenceNumber)) + len(str(urgentPointer)) + len(str(synBit)) + + len(str(finBit)) + len(str(rstBit)) + len(str(terBit))
     # Append all the fields to the dictionary 
     packet.update({'Source ID': sourceID})
     packet.update({'Destination ID': destinationID})
