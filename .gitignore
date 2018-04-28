@@ -150,3 +150,6 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
+
+# Project Related Files
+*Log.txt
