@@ -23,8 +23,8 @@ pathToAnnToChanFile = './Supplemental Text Files/Ann/Ann-_Chan.txt'
 pathToAnnToJanFile = './Supplemental Text Files/Ann/Ann-_Jan.txt'
 
 # Paths to where the resulting log files from communication will be stored
-pathChanToAnnLogFile = './Supplemental Text Files/Ann/ChanToAnnLog.txt'
-pathJanToAnnLogFile = './Supplemental Text Files/Ann/JanToAnnLog.txt'
+pathToAnnChanLogFile = './Supplemental Text Files/Ann/AnnChanLog.txt'
+pathToAnnJanLogFile = './Supplemental Text Files/Ann/AnnJanLog.txt'
 
 # Reading communication material from the text files
 contentAnnToJan = helper.ReadFile(pathToAnnToJanFile)
@@ -83,10 +83,10 @@ class TCPRequestHandler(BaseRequestHandler):
             
             if receivedFrom == 'Jan':
                 data = data + 'Jan attempted to connect.\n\n'
-                helper.WriteToLogFile(pathJanToAnnLogFile, 'a', data)
+                helper.WriteToLogFile(pathToAnnJanLogFile, 'a', data)
             elif receivedFrom == 'Chan':
                 data = data + 'Chan attempted to connect.\n\n'
-                helper.WriteToLogFile(pathChanToAnnLogFile, 'a', data)                      
+                helper.WriteToLogFile(pathToAnnChanLogFile, 'a', data)                      
 
         # Your attempt to setup connection with someone else has been responded to
         elif incomingPacketDecoded.get('Syn Bit') == 1:
@@ -137,11 +137,11 @@ class TCPRequestHandler(BaseRequestHandler):
             if receivedFrom == 'Jan':
                 data = data + 'Connection with Jan is successful. Following line was sent.\n'
                 data = data + packetData + '\n\n'
-                helper.WriteToLogFile(pathJanToAnnLogFile, 'a', data)
+                helper.WriteToLogFile(pathToAnnJanLogFile, 'a', data)
             elif receivedFrom == 'Chan':
                 data = data + 'Connection with Chan is successful. Following line was sent.\n'
                 data = data + packetData + '\n\n'
-                helper.WriteToLogFile(pathChanToAnnLogFile, 'a', data)
+                helper.WriteToLogFile(pathToAnnChanLogFile, 'a', data)
         
         # If data field is empty, that means its an acknowledgement packet
         elif incomingPacketDecoded.get('Data') == '':
@@ -192,9 +192,9 @@ class TCPRequestHandler(BaseRequestHandler):
             data = data + packetData + '\n\n'
 
             if receivedFrom == 'Jan':
-                helper.WriteToLogFile(pathJanToAnnLogFile, 'a', data)
+                helper.WriteToLogFile(pathToAnnJanLogFile, 'a', data)
             elif receivedFrom == 'Chan':
-                helper.WriteToLogFile(pathChanToAnnLogFile, 'a', data)
+                helper.WriteToLogFile(pathToAnnChanLogFile, 'a', data)
         
         # Any other case, is receiving data
         else:
@@ -234,9 +234,9 @@ class TCPRequestHandler(BaseRequestHandler):
             data = data + 'Acknowledgement sent.\n\n'
 
             if receivedFrom == 'Jan':
-                helper.WriteToLogFile(pathJanToAnnLogFile, 'a', data)
+                helper.WriteToLogFile(pathToAnnJanLogFile, 'a', data)
             elif receivedFrom == 'Chan':
-                helper.WriteToLogFile(pathChanToAnnLogFile, 'a', data)
+                helper.WriteToLogFile(pathToAnnChanLogFile, 'a', data)
           
         return
 
@@ -304,7 +304,7 @@ if __name__ == '__main__':
             timeStamp = time.time()
             data = datetime.datetime.fromtimestamp(timeStamp).strftime('%Y-%m-%d %H:%M:%S') + '\n'
             data = data + "Connection setup with Jan started.\n\n"
-            helper.WriteToLogFile(pathJanToAnnLogFile, 'w', data)
+            helper.WriteToLogFile(pathToAnnJanLogFile, 'w', data)
             
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             sock.connect((localHost, portTalkingTo))
