@@ -70,11 +70,10 @@ class TCPRequestHandler(BaseRequestHandler):
             finBit = 0                                                            # Not trying to finish connection, therefore 0                                               
             rstBit = 0                                                            # Not trying to reset connection, therefore 0
             terBit = 0                                                            # Not trying to terminate connection, therefore 0
-            headerLength = 0                                                      # FIGURE THIS OUT???????????????????????????????????????????
-             
+           
             # Create packet with above data
             packet = helper.CreateTCPPacket(sourceID, destinationID, acknowledgementNumber, sequenceNumber, packetData, urgentPointer, 
-                                            synBit, finBit, rstBit, terBit, headerLength)
+                                            synBit, finBit, rstBit, terBit)
             
             # Try and send it
             try:
@@ -108,7 +107,6 @@ class TCPRequestHandler(BaseRequestHandler):
             finBit = 0                                                            # Not trying to finish connection, therefore 0                                               
             rstBit = 0                                                            # Not trying to reset connection, therefore 0
             terBit = 0                                                            # Not trying to terminate connection, therefore 0
-            headerLength = 0                                                      # FIGURE THIS OUT???????????????????????????????????????????
 
             # Populate data field depending on who the connection is being established with
             if receivedFrom == 'Jan':
@@ -118,7 +116,7 @@ class TCPRequestHandler(BaseRequestHandler):
              
             # Create packet with above data
             packet = helper.CreateTCPPacket(sourceID, destinationID, acknowledgementNumber, sequenceNumber, packetData, urgentPointer, 
-                                            synBit, finBit, rstBit, terBit, headerLength)
+                                            synBit, finBit, rstBit, terBit)
             
             # Try and send it
             try:
@@ -149,7 +147,7 @@ class TCPRequestHandler(BaseRequestHandler):
         else:
             # Send acknowledgement
             # Count the number of data packets in here
-            
+
         print(data)
         # self.request.sendall(b'got it')            
         return
