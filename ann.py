@@ -53,33 +53,35 @@ class TCPRequestHandler(BaseRequestHandler):
     
         # self.request is the TCP socket connected to the client
         incomingPacket = self.request.recv(4096)
-
-        receivedFrom = helper.GetKeyFromValue(incomingPacket.get('Source ID'))
+        incomingPacketDecoded = pickle.loads(incomingPacket)
+        
+        receivedFrom = helper.GetKeyFromValue(incomingPacketDecoded.get('Source ID'))
 
         # When someone else is trying to setup connection with us
-        if incomingPacket.get('Syn Bit') == 1 and incomingPacket.get('Acknowledgement Number') == -1:
+        if incomingPacketDecoded.get('Syn Bit') == 1 and incomingPacketDecoded.get('Acknowledgement Number') == -1:
             
             # Send TCP packet with syn bit still one and acknowledgement number as 1 + sequence number. Also, create your own sequence number
-            sourceID = portListeningTo                                            # The port listening to
-            destinationID = incomingPacket.get('Source ID')                       # The destination of the packet about to be sent is where the original packet came from
-            sequenceNumber = random.randint(10000, 99999)                         # First time talking to client, create new sequence number
-            acknowledgementNumber = incomingPacket.get('Sequence Number') + 1     # Client wanted to connect, therefore no data in the original packet, ack # will be one more than client seq #
-            packetData = ''                                                       # Second step of three way handshake, therefore no data
-            urgentPointer = 0                                                     # Not urgent as this is connection setup
-            synBit = 1                                                            # Syn bit has to be one for the second step of threeway handshake
-            finBit = 0                                                            # Not trying to finish connection, therefore 0                                               
-            rstBit = 0                                                            # Not trying to reset connection, therefore 0
-            terBit = 0                                                            # Not trying to terminate connection, therefore 0
+            sourceID = portListeningTo                                                   # The port listening to
+            destinationID = incomingPacketDecoded.get('Source ID')                       # The destination of the packet about to be sent is where the original packet came from
+            sequenceNumber = random.randint(10000, 99999)                                # First time talking to client, create new sequence number
+            acknowledgementNumber = incomingPacketDecoded.get('Sequence Number') + 1     # Client wanted to connect, therefore no data in the original packet, ack # will be one more than client seq #
+            packetData = ''                                                              # Second step of three way handshake, therefore no data
+            urgentPointer = 0                                                            # Not urgent as this is connection setup
+            synBit = 1                                                                   # Syn bit has to be one for the second step of threeway handshake
+            finBit = 0                                                                   # Not trying to finish connection, therefore 0                                               
+            rstBit = 0                                                                   # Not trying to reset connection, therefore 0
+            terBit = 0                                                                   # Not trying to terminate connection, therefore 0
            
             # Create packet with above data
-            packet = helper.CreateTCPPacket(sourceID, destinationID, acknowledgementNumber, sequenceNumber, packetData, urgentPointer, 
+            responsePacket = helper.CreateTCPPacket(sourceID, destinationID, acknowledgementNumber, sequenceNumber, packetData, urgentPointer, 
                                             synBit, finBit, rstBit, terBit)
+            responsePacketEncoded = pickle.dumps(responsePacket)
             
             # Try and send it
             try:
                 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 sock.connect(localHost, portTalkingTo)
-                sock.sendall(packet)
+                sock.sendall(responsePacketEncoded)
             finally:
                 sock.close()
             
@@ -95,34 +97,44 @@ class TCPRequestHandler(BaseRequestHandler):
                 helper.WriteToLogFile(pathChanToAnnLogFile, 'a', data)                      
 
         # Your attempt to setup connection with someone else has been responded to
-        elif incomingPacket.get('Syn Bit') == 1:
+        elif incomingPacketDecoded.get('Syn Bit') == 1:
 
             # Start sending data here and raise the flag to wait for acknowledgement
-            sourceID = portListeningTo                                            # The port listening to
-            destinationID = incomingPacket.get('Source ID')                       # The destination of the packet about to be sent is where the original packet came from
-            sequenceNumber = incomingPacket.get('Acknowledgement Number')         # The  next byte you should be sending is the byte that the other party is expecting
-            acknowledgementNumber = incomingPacket.get('Sequence Number') + 1     # Just one more than the sequence number
-            urgentPointer = 0                                                     # Not urgent as this is connection setup
-            synBit = 0                                                            # Threeway handshake third step, no need of this bit
-            finBit = 0                                                            # Not trying to finish connection, therefore 0                                               
-            rstBit = 0                                                            # Not trying to reset connection, therefore 0
-            terBit = 0                                                            # Not trying to terminate connection, therefore 0
+            sourceID = portListeningTo                                                   # The port listening to
+            destinationID = incomingPacketDecoded.get('Source ID')                       # The destination of the packet about to be sent is where the original packet came from
+            sequenceNumber = incomingPacketDecoded.get('Acknowledgement Number')         # The  next byte you should be sending is the byte that the other party is expecting
+            acknowledgementNumber = incomingPacketDecoded.get('Sequence Number') + 1     # Just one more than the sequence number
+            urgentPointer = 0                                                            # Not urgent as this is connection setup
+            synBit = 0                                                                   # Threeway handshake third step, no need of this bit
+            finBit = 0                                                                   # Not trying to finish connection, therefore 0                                               
+            rstBit = 0                                                                   # Not trying to reset connection, therefore 0
+            terBit = 0                                                                   # Not trying to terminate connection, therefore 0
 
             # Populate data field depending on who the connection is being established with
             if receivedFrom == 'Jan':
-                packetData = contentAnnToJan.pop(0)     # Get the first element from list and delete it from there
+                try:
+                    packetData = contentAnnToJan.pop(0)     # Get the first element from list and delete it from there
+                except IndexError:
+                    # Kick of connection tear down function here
+                    pass
+
             elif receivedFrom == 'Chan':
-                packetData = contentAnnToChan.pop(0)    # Get the first element from list and delete it from there
+                try:
+                    packetData = contentAnnToChan.pop(0)    # Get the first element from list and delete it from there
+                except IndexError:
+                    # Kick of connection tear down function here
+                    pass
              
             # Create packet with above data
-            packet = helper.CreateTCPPacket(sourceID, destinationID, acknowledgementNumber, sequenceNumber, packetData, urgentPointer, 
+            responsePacket = helper.CreateTCPPacket(sourceID, destinationID, acknowledgementNumber, sequenceNumber, packetData, urgentPointer, 
                                             synBit, finBit, rstBit, terBit)
+            responsePacketEncoded = pickle.dumps(responsePacket)
             
             # Try and send it
             try:
                 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 sock.connect(localHost, portTalkingTo)
-                sock.sendall(packet)
+                sock.sendall(responsePacketEncoded)
             finally:
                 sock.close()
             
@@ -140,16 +152,95 @@ class TCPRequestHandler(BaseRequestHandler):
                 helper.WriteToLogFile(pathChanToAnnLogFile, 'a', data)
         
         # If data field is empty, that means its an acknowledgement packet
-        elif incomingPacket.get('Data') == '':
-            # Send next piece of data
+        elif incomingPacketDecoded.get('Data') == '':
+            
+            # Send the next data packet
+            sourceID = portListeningTo                                                   # The port listening to
+            destinationID = incomingPacketDecoded.get('Source ID')                       # The destination of the packet about to be sent is where the original packet came from
+            sequenceNumber = incomingPacketDecoded.get('Acknowledgement Number')         # The  next byte you should be sending is the byte that the other party is expecting
+            acknowledgementNumber = incomingPacketDecoded.get('Sequence Number') + 1     # Client wanted to connect, therefore no data in the original packet, ack # will be one more than client seq #
+            urgentPointer = 0                                                            # Not urgent as this is connection setup
+            synBit = 0                                                                   # Syn bit has to be one for the second step of threeway handshake
+            finBit = 0                                                                   # Not trying to finish connection, therefore 0                                               
+            rstBit = 0                                                                   # Not trying to reset connection, therefore 0
+            terBit = 0                                                                   # Not trying to terminate connection, therefore 0
+
+            # Populate data field depending on who the connection is being established with
+            if receivedFrom == 'Jan':
+                try:
+                    packetData = contentAnnToJan.pop(0)     # Get the first element from list and delete it from there
+                except IndexError:
+                    # Kick of connection tear down function here
+                    pass
+
+            elif receivedFrom == 'Chan':
+                try:
+                    packetData = contentAnnToChan.pop(0)    # Get the first element from list and delete it from there
+                except IndexError:
+                    # Kick of connection tear down function here
+                    pass
+            
+            # Create packet with above data
+            responsePacket = helper.CreateTCPPacket(sourceID, destinationID, acknowledgementNumber, sequenceNumber, packetData, urgentPointer, 
+                                            synBit, finBit, rstBit, terBit)
+            responsePacketEncoded = pickle.dumps(responsePacket)
+            
+            # Try and send it
+            try:
+                sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                sock.connect(localHost, portTalkingTo)
+                sock.sendall(responsePacketEncoded)
+            finally:
+                sock.close()
+
+            # Log what happened
+            timeStamp = time.time()
+            data = datetime.datetime.fromtimestamp(timeStamp).strftime('%Y-%m-%d %H:%M:%S') + '\n'
+            data = data + 'Acknowledgement received.\n'
+
+            if receivedFrom == 'Jan':
+                helper.WriteToLogFile(pathJanToAnnLogFile, 'a', data)
+            elif receivedFrom == 'Chan':
+                helper.WriteToLogFile(pathChanToAnnLogFile, 'a', data)
         
-        # Any other case, is receiving dats
+        # Any other case, is receiving data
         else:
             # Send acknowledgement
-            # Count the number of data packets in here
+            sourceID = portListeningTo                                            # The port listening to
+            destinationID = incomingPacketDecoded.get('Source ID')                # The destination of the packet about to be sent is where the original packet came from
+            sequenceNumber = incomingPacketDecoded.get('Acknowledgement Number')  # The  next byte you should be sending is the byte that the other party is expecting
+            acknowledgementNumber = incomingPacketDecoded.get('Sequence Number')  # Next byte of data that you want
+                                    + len(incomingPacketDecoded.get('Data')) 
+            packetData = ''                                                       # Acknowledgment packets contain no data
+            urgentPointer = 0                                                     # Not urgent as this is connection setup
+            synBit = 0                                                            # Syn bit has to be one for the second step of threeway handshake
+            finBit = 0                                                            # Not trying to finish connection, therefore 0                                               
+            rstBit = 0                                                            # Not trying to reset connection, therefore 0
+            terBit = 0                                                            # Not trying to terminate connection, therefore 0
 
-        print(data)
-        # self.request.sendall(b'got it')            
+            # Create packet with above data
+            responsePacket = helper.CreateTCPPacket(sourceID, destinationID, acknowledgementNumber, sequenceNumber, packetData, urgentPointer, 
+                                            synBit, finBit, rstBit, terBit)
+            responsePacketEncoded = pickle.dumps(responsePacket)
+            
+            # Try and send it
+            try:
+                sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                sock.connect(localHost, portTalkingTo)
+                sock.sendall(responsePacketEncoded)
+            finally:
+                sock.close()
+            
+            # Log what happened
+            timeStamp = time.time()
+            data = datetime.datetime.fromtimestamp(timeStamp).strftime('%Y-%m-%d %H:%M:%S') + '\n'
+            data = data + 'Sending next piece of data'
+
+            if receivedFrom == 'Jan':
+                helper.WriteToLogFile(pathJanToAnnLogFile, 'a', data)
+            elif receivedFrom == 'Chan':
+                helper.WriteToLogFile(pathChanToAnnLogFile, 'a', data)
+          
         return
 
 
@@ -189,12 +280,31 @@ if __name__ == '__main__':
 
 
     try:
+
+        # Start connection setup with Jan
+        sourceID = portListeningTo                                            # The port listening to
+        destinationID = helper.namesAndPorts.get('Jan')                       # Trying to setup connection with Jan, so send the packet to Jan
+        sequenceNumber = random.randint(10000, 99999)                         # First time talking to Jan, create new sequence number
+        acknowledgementNumber = -1                                            # Haven't recevied anything from Jan, therefore -1
+        packetData = ''                                                       # Acknowledgment packets contain no data
+        urgentPointer = 0                                                     # Not urgent as this is connection setup
+        synBit = 1                                                            # Syn bit has to be one since this is connection setup
+        finBit = 0                                                            # Not trying to finish connection, therefore 0                                               
+        rstBit = 0                                                            # Not trying to reset connection, therefore 0
+        terBit = 0                                                            # Not trying to terminate connection, therefore 0
+
+        # Create packet with above data
+        responsePacket = helper.CreateTCPPacket(sourceID, destinationID, acknowledgementNumber, sequenceNumber, packetData, urgentPointer, 
+                                        synBit, finBit, rstBit, terBit)
+        responsePacketEncoded = pickle.dumps(responsePacket)
+        
+        # Try and send it
         try:
-            """
-                Initiate communication here
-            """
-        except:
-            print('Problem opening socket')
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.connect(localHost, portTalkingTo)
+            sock.sendall(responsePacketEncoded)
+        finally:
+            sock.close()
 
         # Run forever till keyboard interrupt is caught
         while True:
