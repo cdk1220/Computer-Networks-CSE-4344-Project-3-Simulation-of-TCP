@@ -10,13 +10,13 @@ import socket
 import pickle
 
 # Everything should be local, make sure all ports are under this IP
-localHost = "127.0.0.1"
+localHost = helper.localHost
 
 # Port number that will ann will be listening to is her ID + 1000
-portListeningTo = 1111
+portListeningTo = helper.namesAndPorts.get('Ann')
 
 # Ann will always be dumping her messages to the router she is connected to
-portTalkingTo = 8000
+portTalkingTo = helper.namesAndPorts.get('A')
 
 # Paths to where communication files are stored
 pathToAnnToChanFile = './Supplemental Text Files/Ann/Ann-_Chan.txt'
@@ -25,14 +25,6 @@ pathToAnnToJanFile = './Supplemental Text Files/Ann/Ann-_Jan.txt'
 # Paths to where the resulting log files from communication will be stored
 pathChanToAnnLogFile = './Supplemental Text Files/Ann/ChanToAnnLog.txt'
 pathJanToAnnLogFile = './Supplemental Text Files/Ann/JanToAnnLog.txt'
-
-# Sequence Numbers for initial packets
-initialSequenceNumberAnnToJan = random.randint(10000, 99999)
-initialSequenceNumberAnnToChan = random.randint(10000, 99999)
-
-# Flag variables to check and see if a packet is sent only after receiving the acknowledgement 
-packetSentAnnToJan = False
-packetSentAnnToChan = False
 
 # Reading communication material from the text files
 contentAnnToJan = helper.ReadFile(pathToAnnToJanFile)
@@ -90,10 +82,10 @@ class TCPRequestHandler(BaseRequestHandler):
             data = datetime.datetime.fromtimestamp(timeStamp).strftime('%Y-%m-%d %H:%M:%S') + '\n'
             
             if receivedFrom == 'Jan':
-                data = data + 'Jan attempted to connect.\n'
+                data = data + 'Jan attempted to connect.\n\n'
                 helper.WriteToLogFile(pathJanToAnnLogFile, 'a', data)
             elif receivedFrom == 'Chan':
-                data = data + 'Chan attempted to connect.\n'
+                data = data + 'Chan attempted to connect.\n\n'
                 helper.WriteToLogFile(pathChanToAnnLogFile, 'a', data)                      
 
         # Your attempt to setup connection with someone else has been responded to
@@ -143,12 +135,12 @@ class TCPRequestHandler(BaseRequestHandler):
             data = datetime.datetime.fromtimestamp(timeStamp).strftime('%Y-%m-%d %H:%M:%S') + '\n'
             
             if receivedFrom == 'Jan':
-                data = data + 'Connection with Jan is successful.\n'
-                data = data + packetData
+                data = data + 'Connection with Jan is successful. Following line was sent.\n'
+                data = data + packetData + '\n\n'
                 helper.WriteToLogFile(pathJanToAnnLogFile, 'a', data)
             elif receivedFrom == 'Chan':
-                data = data + 'Connection with Chan is successful.\n'
-                data = data + packetData
+                data = data + 'Connection with Chan is successful. Following line was sent.\n'
+                data = data + packetData + '\n\n'
                 helper.WriteToLogFile(pathChanToAnnLogFile, 'a', data)
         
         # If data field is empty, that means its an acknowledgement packet
@@ -196,7 +188,8 @@ class TCPRequestHandler(BaseRequestHandler):
             # Log what happened
             timeStamp = time.time()
             data = datetime.datetime.fromtimestamp(timeStamp).strftime('%Y-%m-%d %H:%M:%S') + '\n'
-            data = data + 'Acknowledgement received.\n'
+            data = data + 'Acknowledgement received. Following line was sent\n'
+            data = data + packetData + '\n\n'
 
             if receivedFrom == 'Jan':
                 helper.WriteToLogFile(pathJanToAnnLogFile, 'a', data)
@@ -234,7 +227,9 @@ class TCPRequestHandler(BaseRequestHandler):
             # Log what happened
             timeStamp = time.time()
             data = datetime.datetime.fromtimestamp(timeStamp).strftime('%Y-%m-%d %H:%M:%S') + '\n'
-            data = data + 'Sending next piece of data'
+            data = data + 'Received following line.\n'
+            data = data + incomingPacketDecoded.get('Data') + '\n'
+            data = data + 'Acknowledgement sent.\n\n'
 
             if receivedFrom == 'Jan':
                 helper.WriteToLogFile(pathJanToAnnLogFile, 'a', data)
@@ -270,11 +265,14 @@ if __name__ == '__main__':
         exitEvent = threading.Event() # Set this upon keyboard interrupt to let the threads know they have to exit
         exitEvent.clear()             # Make sure the evebt is clear initially
         
-        # Create a seperate for Jan's server portion
+        # Create a seperate for Ann's server portion
         annServer = threading.Thread(target=AgentServer, args=(exitEvent,))
        
-        # Start the ann's server
+        # Start the Ann's server
         annServer.start()
+
+        # Sleep to ensure that all agents are online
+        time.sleep(10)
     except:
         print ("Couldn't create thread for Ann's router.")
 
@@ -300,6 +298,9 @@ if __name__ == '__main__':
         
         # Try and send it
         try:
+            data = datetime.datetime.fromtimestamp(timeStamp).strftime('%Y-%m-%d %H:%M:%S') + '\n'
+            data = data + "Connection setup with Jan started.\n\n"
+            helper.WriteToLogFile(pathJanToAnnLogFile, 'w', data)
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             sock.connect(localHost, portTalkingTo)
             sock.sendall(responsePacketEncoded)
