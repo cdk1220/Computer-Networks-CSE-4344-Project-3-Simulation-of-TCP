@@ -88,8 +88,7 @@ def CreateTCPPacket(sourceID, destinationID, acknowledgementNumber, sequenceNumb
     # Lets the receiver know if the packet is has to deliver urgent data
     urgentPointer = urgentPointer
     # header length is equal to the size of everything in the packet but the data 
-    headerLength = len(str(sourceID)) + len(str(destinationID)) + len(str(acknowledgementNumber)) + len(str(sequenceNumber)) + 
-                   len(str(urgentPointer)) + len(str(synBit)) + len(str(finBit)) + len(str(rstBit)) + len(str(terBit))
+    headerLength = len(str(sourceID)) + len(str(destinationID)) + len(str(acknowledgementNumber)) + len(str(sequenceNumber)) + len(str(urgentPointer)) + len(str(synBit)) + len(str(finBit)) + len(str(rstBit)) + len(str(terBit))
                    
     # Append all the fields to the dictionary 
     packet.update({'Source ID': sourceID})
@@ -114,7 +113,13 @@ def CreateTCPPacket(sourceID, destinationID, acknowledgementNumber, sequenceNumb
 def Checksum(msg):
     s = 0
     for i in range(0, len(msg), 2):
-        w = ord(msg[i]) + (ord(msg[i+1]) << 8)
+        try:
+            w = ord(msg[i]) + (ord(msg[i+1]) << 8)
+
+        # String has an odd number of characters. When this is the case, assume the next letter would have returned zero
+        except IndexError:
+            w = ord(msg[i]) + (0 << 8)
+
         s = CarryAroundAdd(s, w)
     return ~s & 0xffff
 
