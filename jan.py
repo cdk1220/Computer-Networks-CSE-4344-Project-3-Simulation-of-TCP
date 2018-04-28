@@ -72,7 +72,7 @@ class TCPRequestHandler(BaseRequestHandler):
             # Try and send it
             try:
                 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                sock.connect(localHost, portTalkingTo)
+                sock.connect((localHost, portTalkingTo))
                 sock.sendall(responsePacketEncoded)
             finally:
                 sock.close()
@@ -125,7 +125,7 @@ class TCPRequestHandler(BaseRequestHandler):
             # Try and send it
             try:
                 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                sock.connect(localHost, portTalkingTo)
+                sock.connect((localHost, portTalkingTo))
                 sock.sendall(responsePacketEncoded)
             finally:
                 sock.close()
@@ -180,7 +180,7 @@ class TCPRequestHandler(BaseRequestHandler):
             # Try and send it
             try:
                 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                sock.connect(localHost, portTalkingTo)
+                sock.connect((localHost, portTalkingTo))
                 sock.sendall(responsePacketEncoded)
             finally:
                 sock.close()
@@ -202,8 +202,10 @@ class TCPRequestHandler(BaseRequestHandler):
             sourceID = portListeningTo                                            # The port listening to
             destinationID = incomingPacketDecoded.get('Source ID')                # The destination of the packet about to be sent is where the original packet came from
             sequenceNumber = incomingPacketDecoded.get('Acknowledgement Number')  # The  next byte you should be sending is the byte that the other party is expecting
-            acknowledgementNumber = incomingPacketDecoded.get('Sequence Number')  # Next byte of data that you want
-                                    + len(incomingPacketDecoded.get('Data')) 
+                                                                                   
+                                                                                  # Next byte of data that you want
+            acknowledgementNumber = incomingPacketDecoded.get('Sequence Number') + len(incomingPacketDecoded.get('Data')) 
+
             packetData = ''                                                       # Acknowledgment packets contain no data
             urgentPointer = 0                                                     # Not urgent as this is connection setup
             synBit = 0                                                            # Syn bit has to be one for the second step of threeway handshake
@@ -219,7 +221,7 @@ class TCPRequestHandler(BaseRequestHandler):
             # Try and send it
             try:
                 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                sock.connect(localHost, portTalkingTo)
+                sock.connect((localHost, portTalkingTo))
                 sock.sendall(responsePacketEncoded)
             finally:
                 sock.close()
@@ -298,11 +300,13 @@ if __name__ == '__main__':
         
         # Try and send it
         try:
+            timeStamp = time.time()
             data = datetime.datetime.fromtimestamp(timeStamp).strftime('%Y-%m-%d %H:%M:%S') + '\n'
             data = data + "Connection setup with Ann started.\n\n"
             helper.WriteToLogFile(pathAnnToJanLogFile, 'w', data)
+            
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            sock.connect(localHost, portTalkingTo)
+            sock.connect((localHost, portTalkingTo))
             sock.sendall(responsePacketEncoded)
         finally:
             sock.close()
