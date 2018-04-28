@@ -24,7 +24,6 @@ graph = {
     'L': {'B': 5, 'D': 9, 'F': 5}
 }
 
-
 # Calculating the shortest paths to and from
 pathAnnToJan = helper.Dijkstras(graph,'F','A', visited=[], distances={}, predecessors={})
 pathAnnToJan.insert(0, 'Ann')
@@ -42,7 +41,7 @@ pathAnnToChan.append('Chan')
 pathChanToAnn = pathAnnToChan[::-1]
 
 # Everything should be local, make sure all ports are under this IP
-localHost = "127.0.0.1"
+localHost = helper.localHost
 
 # This function will inspect incoming packet and send it to the next relevant node
 def PassPacket(shortestPath, routerName, packetOnTheWay):
@@ -86,9 +85,10 @@ def TCPHandler(routerName):
             # self.request is the TCP socket connected to the client
             packetOnTheWay = self.request.recv(4096)
             packet = pickle.loads(packetOnTheWay)
-            print(packet)
-            sourceID = packet.get('sourceID')
-            destinationID = packet.get('destnID')
+            print(routerName + '\n' + str(packet) + '\n')
+            
+            sourceID = packet.get('Source ID')
+            destinationID = packet.get('Destination ID')
 
             # Packet is from Ann to Jan
             if sourceID == helper.namesAndPorts.get('Ann') and destinationID == helper.namesAndPorts.get('Jan'):
@@ -116,7 +116,7 @@ def TCPHandler(routerName):
 
             # Packet has no right direction
             else:
-                print('Packet has no right direction')
+                print('Packet has no right direction' + '\n\n')
 
             return
 
@@ -143,8 +143,6 @@ def ThreadRouter (exitEvent, routerName):
         print('Problem creating router' + routerName + '.')
     
     sys.exit()
-
-
 
 
 if __name__ == '__main__':
