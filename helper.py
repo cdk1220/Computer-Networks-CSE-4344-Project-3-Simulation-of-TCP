@@ -16,6 +16,9 @@ namesAndPorts = {
     'Chan': 1001
 }
 
+# Everything is local
+localHost = "127.0.0.1"
+
 # Code obtained from the following website
 # http://www.gilles-bertrand.com/2014/03/dijkstra-algorithm-python-example-source-code-shortest-path.html
 # Gives the shortest path between two given nodes in a graph
