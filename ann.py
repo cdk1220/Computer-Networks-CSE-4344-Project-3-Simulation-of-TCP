@@ -82,10 +82,10 @@ class TCPRequestHandler(BaseRequestHandler):
             data = datetime.datetime.fromtimestamp(timeStamp).strftime('%Y-%m-%d %H:%M:%S') + '\n'
             
             if receivedFrom == 'Jan':
-                data = data + 'Jan attempted to connect.\n\n'
+                data = data + 'Jan as a client attempted to connect. Sent packet with Syn Bit as 1, which is the second step of the threeway handshake.\n\n'
                 helper.WriteToLogFile(pathToAnnJanLogFile, 'a', data)
             elif receivedFrom == 'Chan':
-                data = data + 'Chan attempted to connect.\n\n'
+                data = data + 'Chan as a client attempted to connect. Sent packet with Syn Bit as 1, which is the second step of the threeway handshake.\n\n'
                 helper.WriteToLogFile(pathToAnnChanLogFile, 'a', data)                      
 
         # Your attempt to setup connection with someone else has been responded to
@@ -135,11 +135,11 @@ class TCPRequestHandler(BaseRequestHandler):
             data = datetime.datetime.fromtimestamp(timeStamp).strftime('%Y-%m-%d %H:%M:%S') + '\n'
             
             if receivedFrom == 'Jan':
-                data = data + 'Connection with Jan is successful. Following line was sent.\n'
+                data = data + 'Connection with Jan as the server is successful. This is the third step of the threeway handshake. First line, which is below was sent.\n'
                 data = data + packetData + '\n\n'
                 helper.WriteToLogFile(pathToAnnJanLogFile, 'a', data)
             elif receivedFrom == 'Chan':
-                data = data + 'Connection with Chan is successful. Following line was sent.\n'
+                data = data + 'Connection with Chan as the server is successful. This is the third step of the threeway handshake. First line, which is below was sent.\n'
                 data = data + packetData + '\n\n'
                 helper.WriteToLogFile(pathToAnnChanLogFile, 'a', data)
         
@@ -188,7 +188,7 @@ class TCPRequestHandler(BaseRequestHandler):
             # Log what happened
             timeStamp = time.time()
             data = datetime.datetime.fromtimestamp(timeStamp).strftime('%Y-%m-%d %H:%M:%S') + '\n'
-            data = data + 'Acknowledgement received. Following line was sent\n'
+            data = data + 'Acknowledgement for the previous line was received. Next line, which is below was sent\n'
             data = data + packetData + '\n\n'
 
             if receivedFrom == 'Jan':
@@ -230,7 +230,7 @@ class TCPRequestHandler(BaseRequestHandler):
             timeStamp = time.time()
             data = datetime.datetime.fromtimestamp(timeStamp).strftime('%Y-%m-%d %H:%M:%S') + '\n'
             data = data + 'Received following line.\n'
-            data = data + incomingPacketDecoded.get('Data') + '\n'
+            data = data + incomingPacketDecoded.get('Data')
             data = data + 'Acknowledgement sent.\n\n'
 
             if receivedFrom == 'Jan':
@@ -303,7 +303,7 @@ if __name__ == '__main__':
             # Log it
             timeStamp = time.time()
             data = datetime.datetime.fromtimestamp(timeStamp).strftime('%Y-%m-%d %H:%M:%S') + '\n'
-            data = data + "Connection setup with Jan started.\n\n"
+            data = data + "Connection setup with Jan started. This is the first step of the threeway handshake.\n\n"
             helper.WriteToLogFile(pathToAnnJanLogFile, 'w', data)
             
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
