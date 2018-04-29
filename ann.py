@@ -9,6 +9,9 @@ import time
 import socket
 import pickle
 
+# Counter for Chan so we can terminate the connection after the 5th message 
+Chan_Counter = 0
+
 # Everything should be local, make sure all ports are under this IP
 localHost = helper.localHost
 
@@ -237,6 +240,9 @@ class TCPRequestHandler(BaseRequestHandler):
                 helper.WriteToLogFile(pathToAnnJanLogFile, 'a', data)
             elif receivedFrom == 'Chan':
                 helper.WriteToLogFile(pathToAnnChanLogFile, 'a', data)
+                Chan_Counter = Chan_Counter + 1
+                if Chan_Counter == 6:
+                    print("Terminating Connection With Agent Chan")
           
         return
 
