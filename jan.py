@@ -67,25 +67,19 @@ class TCPRequestHandler(BaseRequestHandler):
             # Create packet with above data
             responsePacket = helper.CreateTCPPacket(sourceID, destinationID, acknowledgementNumber, sequenceNumber, packetData, urgentPointer, 
                                             synBit, finBit, rstBit, terBit)
-            responsePacketEncoded = pickle.dumps(responsePacket)
             
-            # Try and send it
-            try:
-                sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                sock.connect((localHost, portTalkingTo))
-                sock.sendall(responsePacketEncoded)
-            finally:
-                sock.close()
+            # Send packet
+            helper.SerializeAndSendPacket(responsePacket, portTalkingTo)
             
             # Log what happened
             timeStamp = time.time()
             data = datetime.datetime.fromtimestamp(timeStamp).strftime('%Y-%m-%d %H:%M:%S') + '\n'
             
             if receivedFrom == 'Chan':
-                data = data + 'Chan attempted to connect.\n\n'
+                data = data + 'Chan as a client attempted to connect. Sent packet with Syn Bit as 1, which is the second step of the threeway handshake.\n\n'
                 helper.WriteToLogFile(pathToJanChanLogFile, 'a', data)
             elif receivedFrom == 'Ann':
-                data = data + 'Ann attempted to connect.\n\n'
+                data = data + 'Ann as a client attempted to connect. Sent packet with Syn Bit as 1, which is the second step of the threeway handshake.\n\n'
                 helper.WriteToLogFile(pathToJanAnnLogFile, 'a', data)                      
 
         # Your attempt to setup connection with someone else has been responded to
@@ -120,26 +114,20 @@ class TCPRequestHandler(BaseRequestHandler):
             # Create packet with above data
             responsePacket = helper.CreateTCPPacket(sourceID, destinationID, acknowledgementNumber, sequenceNumber, packetData, urgentPointer, 
                                             synBit, finBit, rstBit, terBit)
-            responsePacketEncoded = pickle.dumps(responsePacket)
             
-            # Try and send it
-            try:
-                sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                sock.connect((localHost, portTalkingTo))
-                sock.sendall(responsePacketEncoded)
-            finally:
-                sock.close()
+            # Send packet
+            helper.SerializeAndSendPacket(responsePacket, portTalkingTo)
             
             # Log what happened
             timeStamp = time.time()
             data = datetime.datetime.fromtimestamp(timeStamp).strftime('%Y-%m-%d %H:%M:%S') + '\n'
             
             if receivedFrom == 'Chan':
-                data = data + 'Connection with Chan is successful. Following line was sent.\n'
+                data = data + 'Connection with Chan as the server is successful. This is the third step of the threeway handshake. First, which is below line was sent.\n'
                 data = data + packetData + '\n\n'
                 helper.WriteToLogFile(pathToJanChanLogFile, 'a', data)
             elif receivedFrom == 'Ann':
-                data = data + 'Connection with Ann is successful. Following line was sent.\n'
+                data = data + 'Connection with Ann as the server is successful. This is the third step of the threeway handshake. First, which is below line was sent.\n'
                 data = data + packetData + '\n\n'
                 helper.WriteToLogFile(pathToJanAnnLogFile, 'a', data)
         
@@ -175,15 +163,9 @@ class TCPRequestHandler(BaseRequestHandler):
             # Create packet with above data
             responsePacket = helper.CreateTCPPacket(sourceID, destinationID, acknowledgementNumber, sequenceNumber, packetData, urgentPointer, 
                                             synBit, finBit, rstBit, terBit)
-            responsePacketEncoded = pickle.dumps(responsePacket)
             
-            # Try and send it
-            try:
-                sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                sock.connect((localHost, portTalkingTo))
-                sock.sendall(responsePacketEncoded)
-            finally:
-                sock.close()
+            # Send packet
+            helper.SerializeAndSendPacket(responsePacket, portTalkingTo)
 
             # Log what happened
             timeStamp = time.time()
@@ -216,21 +198,15 @@ class TCPRequestHandler(BaseRequestHandler):
             # Create packet with above data
             responsePacket = helper.CreateTCPPacket(sourceID, destinationID, acknowledgementNumber, sequenceNumber, packetData, urgentPointer, 
                                             synBit, finBit, rstBit, terBit)
-            responsePacketEncoded = pickle.dumps(responsePacket)
             
-            # Try and send it
-            try:
-                sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                sock.connect((localHost, portTalkingTo))
-                sock.sendall(responsePacketEncoded)
-            finally:
-                sock.close()
+            # Send packet
+            helper.SerializeAndSendPacket(responsePacket, portTalkingTo)
             
             # Log what happened
             timeStamp = time.time()
             data = datetime.datetime.fromtimestamp(timeStamp).strftime('%Y-%m-%d %H:%M:%S') + '\n'
             data = data + 'Received following line.\n'
-            data = data + incomingPacketDecoded.get('Data') + '\n'
+            data = data + incomingPacketDecoded.get('Data')
             data = data + 'Acknowledgement sent.\n\n'
 
             if receivedFrom == 'Chan':
@@ -296,20 +272,15 @@ if __name__ == '__main__':
         # Create packet with above data
         responsePacket = helper.CreateTCPPacket(sourceID, destinationID, acknowledgementNumber, sequenceNumber, packetData, urgentPointer, 
                                         synBit, finBit, rstBit, terBit)
-        responsePacketEncoded = pickle.dumps(responsePacket)
         
-        # Try and send it
-        try:
-            timeStamp = time.time()
-            data = datetime.datetime.fromtimestamp(timeStamp).strftime('%Y-%m-%d %H:%M:%S') + '\n'
-            data = data + "Connection setup with Ann started.\n\n"
-            helper.WriteToLogFile(pathToJanAnnLogFile, 'w', data)
-            
-            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            sock.connect((localHost, portTalkingTo))
-            sock.sendall(responsePacketEncoded)
-        finally:
-            sock.close()
+        # Send packet
+        helper.SerializeAndSendPacket(responsePacket, portTalkingTo)
+
+        # Log it
+        timeStamp = time.time()
+        data = datetime.datetime.fromtimestamp(timeStamp).strftime('%Y-%m-%d %H:%M:%S') + '\n'
+        data = data + "Connection setup with Ann started. This is the first step of the threeway handshake.\n\n"
+        helper.WriteToLogFile(pathToJanAnnLogFile, 'w', data)
 
         # Run forever till keyboard interrupt is caught
         while True:

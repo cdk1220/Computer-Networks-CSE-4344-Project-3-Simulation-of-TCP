@@ -1,4 +1,12 @@
 import random
+import datetime
+import time
+from socketserver import ThreadingMixIn, TCPServer, BaseRequestHandler
+import threading
+import sys
+import time
+import socket
+import pickle
 
 # Dictionary for names and associated port numbers
 namesAndPorts = {
@@ -106,6 +114,41 @@ def CreateTCPPacket(sourceID, destinationID, acknowledgementNumber, sequenceNumb
 
     return packet
 
+# This function handles serializing a given packet and then sending it to a given port number
+def SerializeAndSendPacket(responsePacket, portTalkingTo):
+    responsePacketEncoded = pickle.dumps(responsePacket)
+            
+    # Try and send it
+    try:
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.connect((localHost, portTalkingTo))
+        sock.sendall(responsePacketEncoded)
+    finally:
+        sock.close()
+
+# This function will inspect incoming packet and send it to the next relevant node
+def PassPacket(shortestPath, routerName, packetOnTheWay):
+    
+    # Identify which router the packet is at and send it to the next relevant
+    nextRouterIndex = shortestPath.index(routerName) + 1
+
+    # Make sure not to get index out of bounds
+    if nextRouterIndex < len(shortestPath):
+        nextRouterName = shortestPath[nextRouterIndex]
+        nextRouterPort = namesAndPorts.get(nextRouterName)  
+
+        try:
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            
+            # Connect to server and send data
+            sock.connect((localHost, nextRouterPort))
+            sock.sendall(packetOnTheWay)
+        
+        except ConnectionRefusedError:
+            print(nextRouterName + " is offline.")
+
+        finally:
+            sock.close()
 
 # Code obtained from the following website
 # https://stackoverflow.com/questions/1767910/checksum-udp-calculation-python
