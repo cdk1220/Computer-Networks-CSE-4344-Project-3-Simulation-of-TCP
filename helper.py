@@ -1,4 +1,6 @@
 import random
+import datetime
+import time
 from socketserver import ThreadingMixIn, TCPServer, BaseRequestHandler
 import threading
 import sys
@@ -112,6 +114,17 @@ def CreateTCPPacket(sourceID, destinationID, acknowledgementNumber, sequenceNumb
 
     return packet
 
+# This function handles serializing a given packet and then sending it to a given port number
+def SerializeAndSendPacket(responsePacket, portTalkingTo):
+    responsePacketEncoded = pickle.dumps(responsePacket)
+            
+    # Try and send it
+    try:
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.connect((localHost, portTalkingTo))
+        sock.sendall(responsePacketEncoded)
+    finally:
+        sock.close()
 
 # This function will inspect incoming packet and send it to the next relevant node
 def PassPacket(shortestPath, routerName, packetOnTheWay):
