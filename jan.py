@@ -300,16 +300,17 @@ if __name__ == '__main__':
         
         # Try and send it
         try:
-            timeStamp = time.time()
-            data = datetime.datetime.fromtimestamp(timeStamp).strftime('%Y-%m-%d %H:%M:%S') + '\n'
-            data = data + "Connection setup with Ann started. This is the first step of the threeway handshake.\n\n"
-            helper.WriteToLogFile(pathToJanAnnLogFile, 'w', data)
-            
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             sock.connect((localHost, portTalkingTo))
             sock.sendall(responsePacketEncoded)
         finally:
             sock.close()
+
+        # Log it
+        timeStamp = time.time()
+        data = datetime.datetime.fromtimestamp(timeStamp).strftime('%Y-%m-%d %H:%M:%S') + '\n'
+        data = data + "Connection setup with Ann started. This is the first step of the threeway handshake.\n\n"
+        helper.WriteToLogFile(pathToJanAnnLogFile, 'w', data)
 
         # Run forever till keyboard interrupt is caught
         while True:
