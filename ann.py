@@ -70,15 +70,9 @@ class TCPRequestHandler(BaseRequestHandler):
             # Create packet with above data
             responsePacket = helper.CreateTCPPacket(sourceID, destinationID, acknowledgementNumber, sequenceNumber, packetData, urgentPointer, 
                                             synBit, finBit, rstBit, terBit)
-            responsePacketEncoded = pickle.dumps(responsePacket)
-            
-            # Try and send it
-            try:
-                sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                sock.connect((localHost, portTalkingTo))
-                sock.sendall(responsePacketEncoded)
-            finally:
-                sock.close()
+
+            # Send packet
+            helper.SerializeAndSendPacket(responsePacket, portTalkingTo)
             
             # Log what happened
             timeStamp = time.time()
@@ -123,15 +117,9 @@ class TCPRequestHandler(BaseRequestHandler):
             # Create packet with above data
             responsePacket = helper.CreateTCPPacket(sourceID, destinationID, acknowledgementNumber, sequenceNumber, packetData, urgentPointer, 
                                             synBit, finBit, rstBit, terBit)
-            responsePacketEncoded = pickle.dumps(responsePacket)
-            
-            # Try and send it
-            try:
-                sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                sock.connect((localHost, portTalkingTo))
-                sock.sendall(responsePacketEncoded)
-            finally:
-                sock.close()
+           
+            # Send packet
+            helper.SerializeAndSendPacket(responsePacket, portTalkingTo)
             
             # Log what happened
             timeStamp = time.time()
@@ -178,15 +166,9 @@ class TCPRequestHandler(BaseRequestHandler):
             # Create packet with above data
             responsePacket = helper.CreateTCPPacket(sourceID, destinationID, acknowledgementNumber, sequenceNumber, packetData, urgentPointer, 
                                             synBit, finBit, rstBit, terBit)
-            responsePacketEncoded = pickle.dumps(responsePacket)
             
-            # Try and send it
-            try:
-                sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                sock.connect((localHost, portTalkingTo))
-                sock.sendall(responsePacketEncoded)
-            finally:
-                sock.close()
+            # Send packet
+            helper.SerializeAndSendPacket(responsePacket, portTalkingTo)
 
             # Log what happened
             timeStamp = time.time()
@@ -219,15 +201,9 @@ class TCPRequestHandler(BaseRequestHandler):
             # Create packet with above data
             responsePacket = helper.CreateTCPPacket(sourceID, destinationID, acknowledgementNumber, sequenceNumber, packetData, urgentPointer, 
                                             synBit, finBit, rstBit, terBit)
-            responsePacketEncoded = pickle.dumps(responsePacket)
             
-            # Try and send it
-            try:
-                sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                sock.connect((localHost, portTalkingTo))
-                sock.sendall(responsePacketEncoded)
-            finally:
-                sock.close()
+            # Send packet
+            helper.SerializeAndSendPacket(responsePacket, portTalkingTo)
             
             # Log what happened
             timeStamp = time.time()
@@ -302,15 +278,9 @@ if __name__ == '__main__':
         # Create packet with above data
         responsePacket = helper.CreateTCPPacket(sourceID, destinationID, acknowledgementNumber, sequenceNumber, packetData, urgentPointer, 
                                         synBit, finBit, rstBit, terBit)
-        responsePacketEncoded = pickle.dumps(responsePacket)
         
-        # Try and send it
-        try:
-            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            sock.connect((localHost, portTalkingTo))
-            sock.sendall(responsePacketEncoded)
-        finally:
-            sock.close()
+        # Send packet
+        helper.SerializeAndSendPacket(responsePacket, portTalkingTo)
 
         # Log it
         timeStamp = time.time()
