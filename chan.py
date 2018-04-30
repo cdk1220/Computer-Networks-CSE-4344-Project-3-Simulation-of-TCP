@@ -30,6 +30,9 @@ pathToChanAnnLogFile = './Supplemental Text Files/Chan/ChanAnnLog.txt'
 contentChanToJan = helper.ReadFile(pathToChanToJanFile)
 contentChanToAnn = helper.ReadFile(pathToChanToAnnFile)
 
+# Set this upon keyboard interrupt to let the threads know they have to exit
+exitEvent = threading.Event() 
+
 # ---------------------------------------------------------------
 # This class can be instantiated to create a multithreaded server
 # ---------------------------------------------------------------
@@ -49,8 +52,19 @@ class TCPRequestHandler(BaseRequestHandler):
         
         receivedFrom = helper.GetKeyFromValue(incomingPacketDecoded.get('Source ID'))
 
+        # Check if it is the termination packet
+        if incomingPacketDecoded.get('Ter Bit') == 1:
+
+            # Log it
+            timeStamp = time.time()
+            data = datetime.datetime.fromtimestamp(timeStamp).strftime('%Y-%m-%d %H:%M:%S') + '\n'
+            data = data + receivedFrom + 'ordered termination.\n\n'
+
+            # Let the server thread know it has to exit
+            exitEvent.set()
+
         # When someone else is trying to setup connection with us
-        if incomingPacketDecoded.get('Syn Bit') == 1 and incomingPacketDecoded.get('Acknowledgement Number') == -1:
+        elif incomingPacketDecoded.get('Syn Bit') == 1 and incomingPacketDecoded.get('Acknowledgement Number') == -1:
             
             # Send TCP packet with syn bit still one and acknowledgement number as 1 + sequence number. Also, create your own sequence number
             sourceID = portListeningTo                                                   # The port listening to
@@ -220,7 +234,7 @@ class TCPRequestHandler(BaseRequestHandler):
 # ------------------------------------------
 # Function for the router threads to execute
 # ------------------------------------------
-def AgentServer (exitEvent):
+def AgentServer ():
     try:
         server = ThreadedTCPServer((localHost, portListeningTo), TCPRequestHandler)
        
@@ -240,11 +254,11 @@ def AgentServer (exitEvent):
 
 if __name__ == '__main__':
     try:
-        exitEvent = threading.Event() # Set this upon keyboard interrupt to let the threads know they have to exit
-        exitEvent.clear()             # Make sure the evebt is clear initially
+        # Make sure the evebt is clear initially
+        exitEvent.clear()             
         
         # Create a seperate for Chan's server portion
-        chanServer = threading.Thread(target=AgentServer, args=(exitEvent,))
+        chanServer = threading.Thread(target=AgentServer, args=())
        
         # Start the Chan's server
         chanServer.start()
@@ -256,7 +270,6 @@ if __name__ == '__main__':
 
 
     try:
-
         # Start connection setup with Ann
         sourceID = portListeningTo                                            # The port listening to
         destinationID = helper.namesAndPorts.get('Ann')                       # Trying to setup connection with Jan, so send the packet to Jan
