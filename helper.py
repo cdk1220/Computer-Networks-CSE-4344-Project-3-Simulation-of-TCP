@@ -21,7 +21,7 @@ namesAndPorts = {
     'H': 8008,
     'Ann': 1111,
     'Jan': 1100,
-    'Chan': 1001
+    'Chan': 1101
 }
 
 # Everything is local
