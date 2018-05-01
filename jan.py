@@ -30,6 +30,9 @@ pathToJanAnnLogFile = './Supplemental Text Files/Jan/JanAnnLog.txt'
 contentJanToChan = helper.ReadFile(pathToJanToChanFile)
 contentJanToAnn = helper.ReadFile(pathToJanToAnnFile)
 
+# Set this upon keyboard interrupt to let the threads know they have to exit
+exitEvent = threading.Event() 
+
 # ---------------------------------------------------------------
 # This class can be instantiated to create a multithreaded server
 # ---------------------------------------------------------------
@@ -220,7 +223,7 @@ class TCPRequestHandler(BaseRequestHandler):
 # ------------------------------------------
 # Function for the router threads to execute
 # ------------------------------------------
-def AgentServer (exitEvent):
+def AgentServer ():
     try:
         server = ThreadedTCPServer((localHost, portListeningTo), TCPRequestHandler)
        
@@ -240,11 +243,11 @@ def AgentServer (exitEvent):
 
 if __name__ == '__main__':
     try:
-        exitEvent = threading.Event() # Set this upon keyboard interrupt to let the threads know they have to exit
-        exitEvent.clear()             # Make sure the evebt is clear initially
+        # Make sure the evebt is clear initially
+        exitEvent.clear()                    
         
-        # Create a seperate for Jan's server portion
-        janServer = threading.Thread(target=AgentServer, args=(exitEvent,))
+        # Create a seperate for Chan's server portion
+        janServer = threading.Thread(target=AgentServer, args=())
        
         # Start the Jan's server
         janServer.start()
@@ -282,9 +285,14 @@ if __name__ == '__main__':
         data = data + "Connection setup with Ann started. This is the first step of the threeway handshake.\n\n"
         helper.WriteToLogFile(pathToJanAnnLogFile, 'w', data)
 
-        # Run forever till keyboard interrupt is caught
-        while True:
+        # Run till connection teardown or termination
+        while not exitEvent.isSet():
             pass
+        
+        # Wait for Jan's server to finish
+        janServer.join()
+                
+        sys.exit()
     except KeyboardInterrupt:
         exitEvent.set()  # Upon catching keyboard interrupt, let the threads know they have to exit
         

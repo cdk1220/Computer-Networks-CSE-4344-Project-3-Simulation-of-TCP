@@ -52,15 +52,8 @@ class TCPRequestHandler(BaseRequestHandler):
         
         receivedFrom = helper.GetKeyFromValue(incomingPacketDecoded.get('Source ID'))
 
-        # Check if it is the termination packet
         if incomingPacketDecoded.get('Ter Bit') == 1:
-
-            # Log it
-            timeStamp = time.time()
-            data = datetime.datetime.fromtimestamp(timeStamp).strftime('%Y-%m-%d %H:%M:%S') + '\n'
-            data = data + receivedFrom + 'ordered termination.\n\n'
-
-            # Let the server thread know it has to exit
+            print('terminating')
             exitEvent.set()
 
         # When someone else is trying to setup connection with us
@@ -248,14 +241,14 @@ def AgentServer ():
         server.server_close()           
     except:
         print('Problem creating server for agent Chan.')
-    
+
     sys.exit()
 
 
 if __name__ == '__main__':
     try:
         # Make sure the evebt is clear initially
-        exitEvent.clear()             
+        exitEvent.clear()                    
         
         # Create a seperate for Chan's server portion
         chanServer = threading.Thread(target=AgentServer, args=())
@@ -295,10 +288,16 @@ if __name__ == '__main__':
         data = data + "Connection setup with Ann started. This is the first step of the threeway handshake.\n\n"
         helper.WriteToLogFile(pathToChanAnnLogFile, 'w', data)
 
-        # Run forever till keyboard interrupt is caught
-        while True:
+        # Run till connection teardown or termination
+        while not exitEvent.isSet():
             pass
+        
+        # Wait for Chan's server to finish
+        chanServer.join()
+                
+        sys.exit()
     except KeyboardInterrupt:
+        print('Keyboard interrupt\n')
         exitEvent.set()  # Upon catching keyboard interrupt, let the threads know they have to exit
         
         # Wait for Jan's server to finish
