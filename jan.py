@@ -26,6 +26,10 @@ pathToJanToAnnFile = './Supplemental Text Files/Jan/Jan-_Ann.txt'
 pathToJanChanLogFile = './Supplemental Text Files/Jan/JanChanLog.txt'
 pathToJanAnnLogFile = './Supplemental Text Files/Jan/JanAnnLog.txt'
 
+# Clear log files at the start of the session
+helper.WriteToLogFile(pathToJanChanLogFile, 'w', '')
+helper.WriteToLogFile(pathToJanAnnLogFile, 'w', '')
+
 # Reading communication material from the text files
 contentJanToChan = helper.ReadFile(pathToJanToChanFile)
 contentJanToAnn = helper.ReadFile(pathToJanToAnnFile)
@@ -104,15 +108,13 @@ class TCPRequestHandler(BaseRequestHandler):
                 try:
                     packetData = contentJanToChan.pop(0)     # Get the first element from list and delete it from there
                 except IndexError:
-                    # Kick of connection tear down function here
-                    pass
+                    print('Jan-_Chan.txt is empty.\n\n')
 
             elif receivedFrom == 'Ann':
                 try:
                     packetData = contentJanToAnn.pop(0)    # Get the first element from list and delete it from there
                 except IndexError:
-                    # Kick of connection tear down function here
-                    pass
+                    print('Jan-_Ann.txt is empty.\n\n')
              
             # Create packet with above data
             responsePacket = helper.CreateTCPPacket(sourceID, destinationID, acknowledgementNumber, sequenceNumber, packetData, urgentPointer, 
@@ -134,21 +136,24 @@ class TCPRequestHandler(BaseRequestHandler):
                 data = data + packetData + '\n\n'
                 helper.WriteToLogFile(pathToJanAnnLogFile, 'a', data)
         
-        # If data field is empty, that means its an acknowledgement packet
-        elif incomingPacketDecoded.get('Data') == '':
-            
-            # Send the next data packet
-            sourceID = portListeningTo                                                   # The port listening to
-            destinationID = incomingPacketDecoded.get('Source ID')                       # The destination of the packet about to be sent is where the original packet came from
-            sequenceNumber = incomingPacketDecoded.get('Acknowledgement Number')         # The  next byte you should be sending is the byte that the other party is expecting
-            acknowledgementNumber = incomingPacketDecoded.get('Sequence Number') + 1     # Client wanted to connect, therefore no data in the original packet, ack # will be one more than client seq #
-            urgentPointer = 0                                                            # Not urgent as this is connection setup
-            synBit = 0                                                                   # Syn bit has to be one for the second step of threeway handshake
-            finBit = 0                                                                   # Not trying to finish connection, therefore 0                                               
-            rstBit = 0                                                                   # Not trying to reset connection, therefore 0
-            terBit = 0                                                                   # Not trying to terminate connection, therefore 0
 
-             # Populate data field depending on who the connection is being established with
+        # Any other case, is receiving data
+        else:
+            # Send acknowledgement
+            sourceID = portListeningTo                                            # The port listening to
+            destinationID = incomingPacketDecoded.get('Source ID')                # The destination of the packet about to be sent is where the original packet came from
+            sequenceNumber = incomingPacketDecoded.get('Acknowledgement Number')  # The  next byte you should be sending is the byte that the other party is expecting
+                                                                                   
+                                                                                  # Next byte of data that you want
+            acknowledgementNumber = incomingPacketDecoded.get('Sequence Number') + len(incomingPacketDecoded.get('Data')) 
+
+            urgentPointer = 0                                                     # Not urgent as this is connection setup
+            synBit = 0                                                            # Syn bit has to be one for the second step of threeway handshake
+            finBit = 0                                                            # Not trying to finish connection, therefore 0                                               
+            rstBit = 0                                                            # Not trying to reset connection, therefore 0
+            terBit = 0                                                            # Not trying to terminate connection, therefore 0
+
+            # Populate data field depending on who the connection is being established with
             if receivedFrom == 'Chan':
                 try:
                     packetData = contentJanToChan.pop(0)     # Get the first element from list and delete it from there
@@ -162,41 +167,6 @@ class TCPRequestHandler(BaseRequestHandler):
                 except IndexError:
                     # Kick of connection tear down function here
                     pass
-            
-            # Create packet with above data
-            responsePacket = helper.CreateTCPPacket(sourceID, destinationID, acknowledgementNumber, sequenceNumber, packetData, urgentPointer, 
-                                            synBit, finBit, rstBit, terBit)
-            
-            # Send packet
-            helper.SerializeAndSendPacket(responsePacket, portTalkingTo)
-
-            # Log what happened
-            timeStamp = time.time()
-            data = datetime.datetime.fromtimestamp(timeStamp).strftime('%Y-%m-%d %H:%M:%S') + '\n'
-            data = data + 'Acknowledgement received. Following line was sent\n'
-            data = data + packetData + '\n\n'
-
-            if receivedFrom == 'Chan':
-                helper.WriteToLogFile(pathToJanChanLogFile, 'a', data)
-            elif receivedFrom == 'Ann':
-                helper.WriteToLogFile(pathToJanAnnLogFile, 'a', data)
-        
-        # Any other case, is receiving data
-        else:
-            # Send acknowledgement
-            sourceID = portListeningTo                                            # The port listening to
-            destinationID = incomingPacketDecoded.get('Source ID')                # The destination of the packet about to be sent is where the original packet came from
-            sequenceNumber = incomingPacketDecoded.get('Acknowledgement Number')  # The  next byte you should be sending is the byte that the other party is expecting
-                                                                                   
-                                                                                  # Next byte of data that you want
-            acknowledgementNumber = incomingPacketDecoded.get('Sequence Number') + len(incomingPacketDecoded.get('Data')) 
-
-            packetData = ''                                                       # Acknowledgment packets contain no data
-            urgentPointer = 0                                                     # Not urgent as this is connection setup
-            synBit = 0                                                            # Syn bit has to be one for the second step of threeway handshake
-            finBit = 0                                                            # Not trying to finish connection, therefore 0                                               
-            rstBit = 0                                                            # Not trying to reset connection, therefore 0
-            terBit = 0                                                            # Not trying to terminate connection, therefore 0
 
             # Create packet with above data
             responsePacket = helper.CreateTCPPacket(sourceID, destinationID, acknowledgementNumber, sequenceNumber, packetData, urgentPointer, 
@@ -210,7 +180,8 @@ class TCPRequestHandler(BaseRequestHandler):
             data = datetime.datetime.fromtimestamp(timeStamp).strftime('%Y-%m-%d %H:%M:%S') + '\n'
             data = data + 'Received following line.\n'
             data = data + incomingPacketDecoded.get('Data')
-            data = data + 'Acknowledgement sent.\n\n'
+            data = data + 'Acknowledgement sent along with below line.\n'
+            data = data + packetData + '\n\n'
 
             if receivedFrom == 'Chan':
                 helper.WriteToLogFile(pathToJanChanLogFile, 'a', data)
@@ -246,7 +217,7 @@ if __name__ == '__main__':
         # Make sure the evebt is clear initially
         exitEvent.clear()                    
         
-        # Create a seperate for Chan's server portion
+        # Create a seperate for Jan's server portion
         janServer = threading.Thread(target=AgentServer, args=())
        
         # Start the Jan's server
@@ -263,7 +234,7 @@ if __name__ == '__main__':
         # Start connection setup with Ann
         sourceID = portListeningTo                                            # The port listening to
         destinationID = helper.namesAndPorts.get('Ann')                       # Trying to setup connection with Jan, so send the packet to Jan
-        sequenceNumber = random.randint(10000, 99999)                         # First time talking to Jan, create new sequence number
+        sequenceNumber = random.randint(10000, 99999)                         # First time talking to Ann, create new sequence number
         acknowledgementNumber = -1                                            # Haven't recevied anything from Jan, therefore -1
         packetData = ''                                                       # Acknowledgment packets contain no data
         urgentPointer = 0                                                     # Not urgent as this is connection setup
@@ -283,7 +254,7 @@ if __name__ == '__main__':
         timeStamp = time.time()
         data = datetime.datetime.fromtimestamp(timeStamp).strftime('%Y-%m-%d %H:%M:%S') + '\n'
         data = data + "Connection setup with Ann started. This is the first step of the threeway handshake.\n\n"
-        helper.WriteToLogFile(pathToJanAnnLogFile, 'w', data)
+        helper.WriteToLogFile(pathToJanAnnLogFile, 'a', data)
 
         # Run till connection teardown or termination
         while not exitEvent.isSet():
