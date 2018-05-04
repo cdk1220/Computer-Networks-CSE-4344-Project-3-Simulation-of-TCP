@@ -66,14 +66,14 @@ class TCPRequestHandler(BaseRequestHandler):
             
             timeStamp = time.time()
             data = datetime.datetime.fromtimestamp(timeStamp).strftime('%Y-%m-%d %H:%M:%S') + '\n'
-            data = data + 'Acknowledgement revieved, Communication with Ann is Finished.\n\n'
+            data = data + 'Acknowledgement recieved, Communication with Ann is Finished.This is the third step for the communication teardown.\n\n'
             helper.WriteToLogFile(pathToJanAnnLogFile, 'a', data)
             # exit Jan's event
             print('Jan Ending Connection...') 
             exitEvent.set()
 
         elif Mission3Counter == 6:
-            print("Mission3 position 6")
+            
             # increment the next position
             Mission3Counter = 8
 
@@ -100,7 +100,7 @@ class TCPRequestHandler(BaseRequestHandler):
             data = datetime.datetime.fromtimestamp(timeStamp).strftime('%Y-%m-%d %H:%M:%S') + '\n'
             data = data + 'Received following line.\n'
             data = data + incomingPacketDecoded.get('Data')
-            data = data + 'Acknowledgement sent along with below line.\n'
+            data = data + 'Acknowledgement sent along with below line. This is the first step of the connection teardown.\n'
             data = data + packetData + '\n\n'
             helper.WriteToLogFile(pathToJanAnnLogFile, 'a', data)
             print('JanToAnn: Request for a finish mission?\n')
@@ -145,7 +145,7 @@ class TCPRequestHandler(BaseRequestHandler):
             
             # increment the next position
             # need to see how to execute to router H
-            # skipping straight to position 4
+            
             sourceID = portListeningTo                                                   # The port listening to
             destinationID = helper.namesAndPorts.get('H')                                # The destination of the packet about to be sent is where the original packet came from
             sequenceNumber = sequenceNumber = random.randint(10000, 99999)               # The  next byte you should be sending is the byte that the other party is expecting                                                                                  

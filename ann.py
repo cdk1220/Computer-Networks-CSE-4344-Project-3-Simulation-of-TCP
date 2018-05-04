@@ -88,7 +88,7 @@ class TCPRequestHandler(BaseRequestHandler):
             # Log what happened
             timeStamp = time.time()
             data = datetime.datetime.fromtimestamp(timeStamp).strftime('%Y-%m-%d %H:%M:%S') + '\n'
-            data = data + 'Mission Complete, Communication with Jan is Finished.\n\n'
+            data = data + 'Mission Complete, Communication with Jan is Finished. This is the second step of the connection teardown.\n\n'
             helper.WriteToLogFile(pathToAnnJanLogFile, 'a', data)
             print('Ann Ending Connection...')
             # exit Ann's event 
@@ -96,7 +96,7 @@ class TCPRequestHandler(BaseRequestHandler):
 
 
         elif incomingPacketDecoded.get('Urgent Pointer') == 1 and Mission3Counter == 5:
-            print("Mission3 pisition 5")
+            
             Mission3Counter = 7
             sourceID = portListeningTo                                                   # The port listening to
             destinationID = helper.namesAndPorts.get('Jan')                              # The destination of the packet about to be sent is where the original packet came from
