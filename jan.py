@@ -62,14 +62,14 @@ class TCPRequestHandler(BaseRequestHandler):
         receivedFrom = helper.GetKeyFromValue(incomingPacketDecoded.get('Source ID'))
         global Mission3Counter
 
-        if incomingPacketDecoded.get('Fin Bit') == 1 and Mission3Counter == 8:
-            print("Mission3 position 8")            
-            print('Ending Connection...')
+        if incomingPacketDecoded.get('Fin Bit') == 1 and Mission3Counter == 8:           
+            
             timeStamp = time.time()
             data = datetime.datetime.fromtimestamp(timeStamp).strftime('%Y-%m-%d %H:%M:%S') + '\n'
             data = data + 'Acknowledgement revieved, Communication with Ann is Finished.\n\n'
             helper.WriteToLogFile(pathToJanAnnLogFile, 'a', data)
-            # exit Jan's event 
+            # exit Jan's event
+            print('Jan Ending Connection...') 
             exitEvent.set()
 
         elif Mission3Counter == 6:
@@ -82,7 +82,7 @@ class TCPRequestHandler(BaseRequestHandler):
             sequenceNumber = incomingPacketDecoded.get('Acknowledgement Number')         # The  next byte you should be sending is the byte that the other party is expecting                                                                                  
                                                                                          # Next byte of data that you want
             acknowledgementNumber = incomingPacketDecoded.get('Sequence Number')+ len(incomingPacketDecoded.get('Data'))    
-            packetData = ''                                                              # Second step of three way handshake, therefore no data
+            packetData = 'Request for a finish mission?\n'                               # Second step of three way handshake, therefore no data
             urgentPointer = 0                                                            # Not urgent as this is connection setup
             synBit = 0                                                                   # Syn bit is zero
             finBit = 1                                                                   # Trying to finish connection
@@ -103,11 +103,12 @@ class TCPRequestHandler(BaseRequestHandler):
             data = data + 'Acknowledgement sent along with below line.\n'
             data = data + packetData + '\n\n'
             helper.WriteToLogFile(pathToJanAnnLogFile, 'a', data)
+            print('JanToAnn: Request for a finish mission?\n')
 
 
 
-        elif Mission3Counter == 4 and incomingPacketDecoded.get('Urgent Pointer') == 1:
-            print("Mission3 position 4")
+        elif Mission3Counter == 4 and incomingPacketDecoded.get('Data') == 'Success!':
+            
             # increment the next position
             Mission3Counter = 6
             sourceID = portListeningTo                                                   # The port listening to
@@ -116,7 +117,7 @@ class TCPRequestHandler(BaseRequestHandler):
                                                                                          # Next byte of data that you want
             acknowledgementNumber = incomingPacketDecoded.get('Sequence Number')+ len(incomingPacketDecoded.get('Data'))
                                                                                          # confirm success by giving the code
-            packetData = 'The authorization code\n' + 'Congratulations\n' 
+            packetData = 'The authorization code:\n' + 'Congratulations\n' 
             urgentPointer = 1                                                            # Message is urgent
             synBit = 0                                                                   # Syn bit is zero
             finBit = 0                                                                   # Not trying to finish connection, therefore 0                                               
@@ -137,10 +138,11 @@ class TCPRequestHandler(BaseRequestHandler):
             data = data + 'Acknowledgement sent along with below line.\n'
             data = data + packetData + '\n\n'
             helper.WriteToLogFile(pathToJanAnnLogFile, 'a', data)
+            print('JanToAnn: The authorization code:\n' + 'Congratulations\n')
 
 
         elif Mission3Counter == 2:
-            print("Mission3 position 2")
+            
             # increment the next position
             # need to see how to execute to router H
             # skipping straight to position 4
@@ -148,7 +150,7 @@ class TCPRequestHandler(BaseRequestHandler):
             destinationID = helper.namesAndPorts.get('H')                                # The destination of the packet about to be sent is where the original packet came from
             sequenceNumber = sequenceNumber = random.randint(10000, 99999)               # The  next byte you should be sending is the byte that the other party is expecting                                                                                  
                                                                                          # Next byte of data that you want
-            acknowledgementNumber = incomingPacketDecoded.get('Sequence Number') + 1 
+            acknowledgementNumber = -1 
                                                                                          # confirm success by giving the code
             packetData = 'Location of target: (32° 43 22.77 N,97° 9 7.53 W)\n' + 'The authorization code for the Airforce Headquarters:\n' + 'PEPPER THE PEPPER\n' 
             urgentPointer = 1                                                            # Message is urgent
@@ -172,13 +174,14 @@ class TCPRequestHandler(BaseRequestHandler):
             data = data + incomingPacketDecoded.get('Data')
             data = data + 'Acknowledgement sent along with below line.\n'
             #data = data + packetData + '\n\n'
-            helper.WriteToLogFile(pathToJanAnnLogFile, 'a', data)
+            helper.WriteToLogFile(pathToJanAirForceLogFile, 'a', data)
             Mission3Counter = 4
+            print('JanToAirForce: Location of target: (32° 43 22.77 N,97° 9 7.53 W)\n' + 'The authorization code for the Airforce Headquarters:\n' + 'PEPPER THE PEPPER\n')
 
 
 
         elif incomingPacketDecoded.get('Urgent Pointer') == 1:
-            print("Mission3 position 0")
+            print('Communication with Chan has been Compromised\n')
             # increment the next position
             Mission3Counter = 2
             sourceID = portListeningTo                                                   # The port listening to
@@ -210,6 +213,7 @@ class TCPRequestHandler(BaseRequestHandler):
             data = data + packetData + '\n\n'
             helper.WriteToLogFile(pathToJanAnnLogFile, 'a', data)
             
+            print('JanToAnn: Location of target: (32° 43 22.77 N,97° 9 7.53 W)\n' + 'Request for a mission execution?\n')
 
 
         elif Mission3Counter < 0:
