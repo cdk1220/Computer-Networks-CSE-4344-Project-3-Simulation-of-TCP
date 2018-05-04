@@ -91,6 +91,8 @@ def TCPHandler(routerName):
             elif sourceID == helper.namesAndPorts.get('Chan') and destinationID == helper.namesAndPorts.get('Ann'):    
                 helper.PassPacket(pathChanToAnn, routerName, packetOnTheWay)
 
+            
+
             # Packet has no right direction
             else:
                 print('Packet has no right direction' + '\n\n')
