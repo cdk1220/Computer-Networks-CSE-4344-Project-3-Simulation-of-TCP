@@ -7,6 +7,7 @@ import time
 import socket
 import pickle
 import datetime
+import random
 
 
 # ---------------------------
@@ -75,7 +76,7 @@ def TCPHandler(routerName):
                 helper.PassPacket(pathAnnToJan, routerName, packetOnTheWay)
             
             # Packet is from Jan to the Airforce
-            elif sourceID == helper.namesAndPorts.get('Ann') and destinationID == helper.namesAndPorts.get('Jan'):
+            elif sourceID == helper.namesAndPorts.get('Jan') and destinationID == helper.namesAndPorts.get('H'):
                 
                 sourceID = helper.namesAndPorts.get('H')
                 destinationID = helper.namesAndPorts.get('Jan')                              # The destination of the packet about to be sent is where the original packet came from

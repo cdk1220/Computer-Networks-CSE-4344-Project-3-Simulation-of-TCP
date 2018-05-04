@@ -29,7 +29,7 @@ pathToJanToAnnFile = './Supplemental Text Files/Jan/Jan-_Ann.txt'
 # Paths to where the resulting log files from communication will be stored
 pathToJanChanLogFile = './Supplemental Text Files/Jan/JanChanLog.txt'
 pathToJanAnnLogFile = './Supplemental Text Files/Jan/JanAnnLog.txt'
-pathToJanAirForceLogFile = './Supplemental Text Files/Jan/AirForceLog.txt'
+pathToJanAirForceLogFile = './Supplemental Text Files/Jan/JanAirForceLog.txt'
 
 # Clear log files at the start of the session
 helper.WriteToLogFile(pathToJanChanLogFile, 'w', '')
