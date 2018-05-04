@@ -6,6 +6,7 @@ import sys
 import time
 import socket
 import pickle
+import datetime
 
 
 # ---------------------------
@@ -23,6 +24,8 @@ graph = {
     'G': {'E': 5, 'D': 10},
     'L': {'B': 5, 'D': 9, 'F': 5}
 }
+
+pathToAirForceJanLogFile = './Supplemental Text Files/AirForceJanLogFile.txt'
 
 # Calculating the shortest paths to and from
 pathAnnToJan = helper.Dijkstras(graph,'F','A', visited=[], distances={}, predecessors={})
@@ -70,6 +73,38 @@ def TCPHandler(routerName):
             # Packet is from Ann to Jan
             if sourceID == helper.namesAndPorts.get('Ann') and destinationID == helper.namesAndPorts.get('Jan'):
                 helper.PassPacket(pathAnnToJan, routerName, packetOnTheWay)
+            
+            # Packet is from Jan to the Airforce
+            elif sourceID == helper.namesAndPorts.get('Ann') and destinationID == helper.namesAndPorts.get('Jan'):
+                
+                sourceID = helper.namesAndPorts.get('H')
+                destinationID = helper.namesAndPorts.get('Jan')                              # The destination of the packet about to be sent is where the original packet came from
+                sequenceNumber = random.randint(10000, 99999)                                # First time talking to Jan, create new sequence number                                                                                  
+                                                                                             # Next byte of data that you want
+                acknowledgementNumber = packet.get('Sequence Number')+ len(packet.get('Data'))    
+                packetData = 'Success!'                                                      # Second step of three way handshake, therefore no data
+                urgentPointer = 0                                                            # Not urgent as this is connection setup
+                synBit = 0                                                                   # Syn bit is zero
+                finBit = 0                                                                   # Trying to finish connection
+                rstBit = 0                                                                   # Not trying to reset connection, therefore 0
+                terBit = 0                                                                   # Not trying to terminate connection, therefore 0
+
+                # Create packet with above data
+                responsePacket = helper.CreateTCPPacket(sourceID, destinationID, acknowledgementNumber, sequenceNumber, packetData, urgentPointer, synBit, finBit, rstBit, terBit)
+
+                # Send packet
+                helper.SerializeAndSendPacket(responsePacket, destinationID)
+
+                # Log what happened at the airport router
+                timeStamp = time.time()
+                data = datetime.datetime.fromtimestamp(timeStamp).strftime('%Y-%m-%d %H:%M:%S') + '\n'
+                data = data + 'Received following line.\n'
+                data = data + packet.get('Data')
+                data = data + 'Acknowledgement sent along with below line.\n'
+                data = data + packetData + '\n\n'
+                helper.WriteToLogFile(pathToAirForceJanLogFile, 'w', data)
+
+                print('Airforce to Jan: Success!')
             
             # Packet is from Jan to Ann
             elif sourceID == helper.namesAndPorts.get('Jan') and destinationID == helper.namesAndPorts.get('Ann'):    
