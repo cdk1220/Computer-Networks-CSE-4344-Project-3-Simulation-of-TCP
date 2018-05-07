@@ -1,3 +1,6 @@
+# Ricardo Morales - 1000 929 992
+# Don Kuruppu - 1001 101 220
+
 import helper
 import random
 import datetime
