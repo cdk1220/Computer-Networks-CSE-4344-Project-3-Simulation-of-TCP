@@ -50,34 +50,35 @@ exitEvent = threading.Event()
 # This class can be instantiated to create a multithreaded server
 # ---------------------------------------------------------------
 class ThreadedTCPServer(ThreadingMixIn, TCPServer):
-    """Handle requests in a separate thread."""
-    
+	"""Handle requests in a separate thread."""
+	
 
 # ----------------------------------------------------
 # Request handler for the server portion of the agents
 # ----------------------------------------------------
 class TCPRequestHandler(BaseRequestHandler):
     def handle(self):
-    
+
         # self.request is the TCP socket connected to the client
         incomingPacket = self.request.recv(4096)
         incomingPacketDecoded = pickle.loads(incomingPacket)
-        
+
         receivedFrom = helper.GetKeyFromValue(incomingPacketDecoded.get('Source ID'))
         global Mission3Counter
 
-        if incomingPacketDecoded.get('Fin Bit') == 1 and Mission3Counter == 8:           
-            
+        if incomingPacketDecoded.get('Fin Bit') == 1 and Mission3Counter == 8:
+	    
             timeStamp = time.time()
             data = datetime.datetime.fromtimestamp(timeStamp).strftime('%Y-%m-%d %H:%M:%S') + '\n'
             data = data + 'Acknowledgement recieved, Communication with Ann is Finished.This is the third step for the communication teardown.\n\n'
             helper.WriteToLogFile(pathToJanAnnLogFile, 'a', data)
             # exit Jan's event
-            print('Jan Ending Connection...') 
+            print('Fin Bit reveived....\n')
+            print('Jan Ending Connection...')
             exitEvent.set()
-
+		
         elif Mission3Counter == 6:
-            
+
             # increment the next position
             Mission3Counter = 8
 
@@ -92,13 +93,13 @@ class TCPRequestHandler(BaseRequestHandler):
             finBit = 1                                                                   # Trying to finish connection
             rstBit = 0                                                                   # Not trying to reset connection, therefore 0
             terBit = 0                                                                   # Not trying to terminate connection, therefore 0
-           
+
             # Create packet with above data
             responsePacket = helper.CreateTCPPacket(sourceID, destinationID, acknowledgementNumber, sequenceNumber, packetData, urgentPointer, synBit, finBit, rstBit, terBit)
 
             # Send packet
             helper.SerializeAndSendPacket(responsePacket, portTalkingTo)
-            
+
             # Log what happened
             timeStamp = time.time()
             data = datetime.datetime.fromtimestamp(timeStamp).strftime('%Y-%m-%d %H:%M:%S') + '\n'
@@ -107,12 +108,12 @@ class TCPRequestHandler(BaseRequestHandler):
             data = data + 'Acknowledgement sent along with below line. This is the first step of the connection teardown.\n'
             data = data + packetData + '\n\n'
             helper.WriteToLogFile(pathToJanAnnLogFile, 'a', data)
-            print('JanToAnn: Request for a finish mission?\n')
+            print('JanToAnn: sending Fin Bit to ann.\n')
 
 
 
         elif Mission3Counter == 4 and incomingPacketDecoded.get('Data') == 'Success!':
-            
+
             # increment the next position
             Mission3Counter = 6
             sourceID = portListeningTo                                                   # The port listening to
@@ -121,19 +122,19 @@ class TCPRequestHandler(BaseRequestHandler):
                                                                                          # Next byte of data that you want
             acknowledgementNumber = incomingPacketDecoded.get('Sequence Number')+ len(incomingPacketDecoded.get('Data'))
                                                                                          # confirm success by giving the code
-            packetData = 'The authorization code:\n' + 'Congratulations\n' 
+            packetData = 'The authorization code:\n' + 'Congratulations we have fried dry green leaves\n' 
             urgentPointer = 1                                                            # Message is urgent
             synBit = 0                                                                   # Syn bit is zero
             finBit = 0                                                                   # Not trying to finish connection, therefore 0                                               
             rstBit = 0                                                                   # Not trying to reset connection, therefore 0
             terBit = 0                                                                   # Not trying to terminate connection, therefore 0
-           
+
             # Create packet with above data
             responsePacket = helper.CreateTCPPacket(sourceID, destinationID, acknowledgementNumber, sequenceNumber, packetData, urgentPointer, synBit, finBit, rstBit, terBit)
 
             # Send packet
             helper.SerializeAndSendPacket(responsePacket, portTalkingTo)
-            
+
             # Log what happened
             timeStamp = time.time()
             data = datetime.datetime.fromtimestamp(timeStamp).strftime('%Y-%m-%d %H:%M:%S') + '\n'
@@ -142,14 +143,15 @@ class TCPRequestHandler(BaseRequestHandler):
             data = data + 'Acknowledgement sent along with below line.\n'
             data = data + packetData + '\n\n'
             helper.WriteToLogFile(pathToJanAnnLogFile, 'a', data)
-            print('JanToAnn: The authorization code:\n' + 'Congratulations\n')
+            print('Recieved Success packet from Head Quarters.\n')
+            print('JanToAnn: Urg Pointer On: The authorization code:\n' + 'Congratulations we have fried dry green leaves\n')
 
 
         elif Mission3Counter == 2 and incomingPacketDecoded.get('Data') == 'PEPPER THE PEPPER\n':
-            
+
             # increment the next position
             # need to see how to execute to router H
-            
+
             sourceID = portListeningTo                                                   # The port listening to
             destinationID = helper.namesAndPorts.get('H')                                # The destination of the packet about to be sent is where the original packet came from
             sequenceNumber = sequenceNumber = random.randint(10000, 99999)               # The  next byte you should be sending is the byte that the other party is expecting                                                                                  
@@ -162,16 +164,16 @@ class TCPRequestHandler(BaseRequestHandler):
             finBit = 0                                                                   # Not trying to finish connection, therefore 0                                               
             rstBit = 0                                                                   # Not trying to reset connection, therefore 0
             terBit = 0                                                                   # Not trying to terminate connection, therefore 0
-           
+
             # Create packet with above data
             responsePacket = helper.CreateTCPPacket(sourceID, destinationID, acknowledgementNumber, sequenceNumber, packetData, urgentPointer, synBit, finBit, rstBit, terBit)
 
             # Send packet
             helper.SerializeAndSendPacket(responsePacket, helper.namesAndPorts.get('H'))
-            
+
 
             # Log what happened
-            
+
             timeStamp = time.time()
             data = datetime.datetime.fromtimestamp(timeStamp).strftime('%Y-%m-%d %H:%M:%S') + '\n'
             data = data + 'Received following line.\n'
@@ -180,12 +182,12 @@ class TCPRequestHandler(BaseRequestHandler):
             data = data + packetData + '\n\n'
             helper.WriteToLogFile(pathToJanAirForceLogFile, 'a', data)
             Mission3Counter = 4
+            print('Recieved Authorization code from Ann.\n')
             print('JanToAirForce: Location of target: (32° 43 22.77 N,97° 9 7.53 W)\n' + 'The authorization code for the Airforce Headquarters:\n' + 'PEPPER THE PEPPER\n')
 
 
 
         elif incomingPacketDecoded.get('Urgent Pointer') == 1:
-            print('Communication with Chan has been Compromised\n')
             # increment the next position
             Mission3Counter = 2
             sourceID = portListeningTo                                                   # The port listening to
@@ -200,13 +202,13 @@ class TCPRequestHandler(BaseRequestHandler):
             finBit = 0                                                                   # Not trying to finish connection, therefore 0                                               
             rstBit = 0                                                                   # Not trying to reset connection, therefore 0
             terBit = 0                                                                   # Not trying to terminate connection, therefore 0
-           
+
             # Create packet with above data
             responsePacket = helper.CreateTCPPacket(sourceID, destinationID, acknowledgementNumber, sequenceNumber, packetData, urgentPointer, synBit, finBit, rstBit, terBit)
 
             # Send packet
             helper.SerializeAndSendPacket(responsePacket, portTalkingTo)
-            
+
 
             # Log what happened
             timeStamp = time.time()
@@ -216,8 +218,8 @@ class TCPRequestHandler(BaseRequestHandler):
             data = data + 'Acknowledgement sent along with below line.\n'
             data = data + packetData + '\n\n'
             helper.WriteToLogFile(pathToJanAnnLogFile, 'a', data)
-            
-            print('JanToAnn: Location of target: (32° 43 22.77 N,97° 9 7.53 W)\n' + 'Request for a mission execution?\n')
+            print('Urg pointer resived: ' + incomingPacketDecoded.get('Data')) 
+            print('JanToAnn: Urg Pointer On: Location of target: (32° 43 22.77 N,97° 9 7.53 W)\n' + 'Request for a mission execution?\n')
 
 
         elif Mission3Counter < 0:
@@ -300,7 +302,7 @@ class TCPRequestHandler(BaseRequestHandler):
                     data = data + 'Connection with Ann as the server is successful. This is the third step of the threeway handshake. First, which is below line was sent.\n'
                     data = data + packetData + '\n\n'
                     helper.WriteToLogFile(pathToJanAnnLogFile, 'a', data)
-            
+
 
             # Any other case, is receiving data
             else:
@@ -352,7 +354,7 @@ class TCPRequestHandler(BaseRequestHandler):
                     helper.WriteToLogFile(pathToJanChanLogFile, 'a', data)
                 elif receivedFrom == 'Ann':
                     helper.WriteToLogFile(pathToJanAnnLogFile, 'a', data)
-          
+
         return
 
 
@@ -360,79 +362,79 @@ class TCPRequestHandler(BaseRequestHandler):
 # Function for the router threads to execute
 # ------------------------------------------
 def AgentServer ():
-    try:
-        server = ThreadedTCPServer((localHost, portListeningTo), TCPRequestHandler)
-       
-        server.timeout = 0.01           # Make sure not to wait too long when serving requests
-        server.daemon_threads = True    # So that handle_request thread exits when current thread exits
+	try:
+	    server = ThreadedTCPServer((localHost, portListeningTo), TCPRequestHandler)
+	   
+	    server.timeout = 0.01           # Make sure not to wait too long when serving requests
+	    server.daemon_threads = True    # So that handle_request thread exits when current thread exits
 
-        # Poll so that you see the signal to exit as opposed to calling server_forever
-        while not exitEvent.isSet():
-            server.handle_request()   
+	    # Poll so that you see the signal to exit as opposed to calling server_forever
+	    while not exitEvent.isSet():
+	        server.handle_request()   
 
-        server.server_close()           
-    except:
-        print('Problem creating server for agent Jan.')
-    
-    sys.exit()
+	    server.server_close()           
+	except:
+	    print('Problem creating server for agent Jan.')
+	
+	sys.exit()
 
 
 if __name__ == '__main__':
-    try:
-        # Make sure the evebt is clear initially
-        exitEvent.clear()                    
-        
-        # Create a seperate for Jan's server portion
-        janServer = threading.Thread(target=AgentServer, args=())
-       
-        # Start the Jan's server
-        janServer.start()
+	try:
+	    # Make sure the evebt is clear initially
+	    exitEvent.clear()                    
+	    
+	    # Create a seperate for Jan's server portion
+	    janServer = threading.Thread(target=AgentServer, args=())
+	   
+	    # Start the Jan's server
+	    janServer.start()
 
-        # Sleep to ensure that all agents are online
-        time.sleep(10)
-    except:
-        print ("Couldn't create thread for Jan's router.")
+	    # Sleep to ensure that all agents are online
+	    time.sleep(10)
+	except:
+	    print ("Couldn't create thread for Jan's router.")
 
 
-    try:
+	try:
 
-        # Start connection setup with Ann
-        sourceID = portListeningTo                                            # The port listening to
-        destinationID = helper.namesAndPorts.get('Ann')                       # Trying to setup connection with Jan, so send the packet to Jan
-        sequenceNumber = random.randint(10000, 99999)                         # First time talking to Ann, create new sequence number
-        acknowledgementNumber = -1                                            # Haven't recevied anything from Jan, therefore -1
-        packetData = ''                                                       # Acknowledgment packets contain no data
-        urgentPointer = 0                                                     # Not urgent as this is connection setup
-        synBit = 1                                                            # Syn bit has to be one since this is connection setup
-        finBit = 0                                                            # Not trying to finish connection, therefore 0                                               
-        rstBit = 0                                                            # Not trying to reset connection, therefore 0
-        terBit = 0                                                            # Not trying to terminate connection, therefore 0
+	    # Start connection setup with Ann
+	    sourceID = portListeningTo                                            # The port listening to
+	    destinationID = helper.namesAndPorts.get('Ann')                       # Trying to setup connection with Jan, so send the packet to Jan
+	    sequenceNumber = random.randint(10000, 99999)                         # First time talking to Ann, create new sequence number
+	    acknowledgementNumber = -1                                            # Haven't recevied anything from Jan, therefore -1
+	    packetData = ''                                                       # Acknowledgment packets contain no data
+	    urgentPointer = 0                                                     # Not urgent as this is connection setup
+	    synBit = 1                                                            # Syn bit has to be one since this is connection setup
+	    finBit = 0                                                            # Not trying to finish connection, therefore 0                                               
+	    rstBit = 0                                                            # Not trying to reset connection, therefore 0
+	    terBit = 0                                                            # Not trying to terminate connection, therefore 0
 
-        # Create packet with above data
-        responsePacket = helper.CreateTCPPacket(sourceID, destinationID, acknowledgementNumber, sequenceNumber, packetData, urgentPointer, 
-                                        synBit, finBit, rstBit, terBit)
-        
-        # Send packet
-        helper.SerializeAndSendPacket(responsePacket, portTalkingTo)
+	    # Create packet with above data
+	    responsePacket = helper.CreateTCPPacket(sourceID, destinationID, acknowledgementNumber, sequenceNumber, packetData, urgentPointer, 
+	                                    synBit, finBit, rstBit, terBit)
+	    
+	    # Send packet
+	    helper.SerializeAndSendPacket(responsePacket, portTalkingTo)
 
-        # Log it
-        timeStamp = time.time()
-        data = datetime.datetime.fromtimestamp(timeStamp).strftime('%Y-%m-%d %H:%M:%S') + '\n'
-        data = data + "Connection setup with Ann started. This is the first step of the threeway handshake.\n\n"
-        helper.WriteToLogFile(pathToJanAnnLogFile, 'a', data)
+	    # Log it
+	    timeStamp = time.time()
+	    data = datetime.datetime.fromtimestamp(timeStamp).strftime('%Y-%m-%d %H:%M:%S') + '\n'
+	    data = data + "Connection setup with Ann started. This is the first step of the threeway handshake.\n\n"
+	    helper.WriteToLogFile(pathToJanAnnLogFile, 'a', data)
 
-        # Run till connection teardown or termination
-        while not exitEvent.isSet():
-            pass
-        
-        # Wait for Jan's server to finish
-        janServer.join()
-                
-        sys.exit()
-    except KeyboardInterrupt:
-        exitEvent.set()  # Upon catching keyboard interrupt, let the threads know they have to exit
-        
-        # Wait for Jan's server to finish
-        janServer.join()
-                
-        sys.exit()
+	    # Run till connection teardown or termination
+	    while not exitEvent.isSet():
+	        pass
+	    
+	    # Wait for Jan's server to finish
+	    janServer.join()
+	            
+	    sys.exit()
+	except KeyboardInterrupt:
+	    exitEvent.set()  # Upon catching keyboard interrupt, let the threads know they have to exit
+	    
+	    # Wait for Jan's server to finish
+	    janServer.join()
+	            
+	    sys.exit()

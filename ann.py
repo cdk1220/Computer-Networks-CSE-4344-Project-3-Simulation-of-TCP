@@ -57,7 +57,7 @@ class ThreadedTCPServer(ThreadingMixIn, TCPServer):
 # ----------------------------------------------------
 class TCPRequestHandler(BaseRequestHandler):
     def handle(self):
-    
+
         # self.request is the TCP socket connected to the client
         incomingPacket = self.request.recv(4096)
         incomingPacketDecoded = pickle.loads(incomingPacket)
@@ -81,18 +81,19 @@ class TCPRequestHandler(BaseRequestHandler):
             finBit = 1                                                                   # Trying to finish connection
             rstBit = 0                                                                   # Not trying to reset connection, therefore 0
             terBit = 0                                                                   # Not trying to terminate connection, therefore 0
-           
+
             # Create packet with above data
             responsePacket = helper.CreateTCPPacket(sourceID, destinationID, acknowledgementNumber, sequenceNumber, packetData, urgentPointer, synBit, finBit, rstBit, terBit)
 
             # Send packet
             helper.SerializeAndSendPacket(responsePacket, portTalkingTo)
-            
+
             # Log what happened
             timeStamp = time.time()
             data = datetime.datetime.fromtimestamp(timeStamp).strftime('%Y-%m-%d %H:%M:%S') + '\n'
             data = data + 'Mission Complete, Communication with Jan is Finished. This is the second step of the connection teardown.\n\n'
             helper.WriteToLogFile(pathToAnnJanLogFile, 'a', data)
+            print('Fin Bit reveived.... sending Fin Bit to Jan....\n')
             print('Ann Ending Connection...')
             # exit Ann's event 
             exitEvent.set()
@@ -127,7 +128,8 @@ class TCPRequestHandler(BaseRequestHandler):
             data = data + 'Acknowledgement sent along with below line.\n'
             data = data + packetData + '\n\n'
             helper.WriteToLogFile(pathToAnnJanLogFile, 'a', data)
-            print('AnnToJan: Meeting Location: 32.76 N, -97.07 W\n')
+            print('Urg pointer resived: ' + incomingPacketDecoded.get('Data'))
+            print('\nAnnToJan: Meeting Location: 32.76 N, -97.07 W\n')
 
         elif incomingPacketDecoded.get('Urgent Pointer') == 1 and Mission3Counter == 1: 
             
@@ -146,13 +148,13 @@ class TCPRequestHandler(BaseRequestHandler):
             finBit = 0                                                                   # Not trying to finish connection, therefore 0                                               
             rstBit = 0                                                                   # Not trying to reset connection, therefore 0
             terBit = 0                                                                   # Not trying to terminate connection, therefore 0
-           
+
             # Create packet with above data
             responsePacket = helper.CreateTCPPacket(sourceID, destinationID, acknowledgementNumber, sequenceNumber, packetData, urgentPointer, synBit, finBit, rstBit, terBit)
 
             # Send packet
             helper.SerializeAndSendPacket(responsePacket, portTalkingTo)
-            
+
             # Log what happened
             timeStamp = time.time()
             data = datetime.datetime.fromtimestamp(timeStamp).strftime('%Y-%m-%d %H:%M:%S') + '\n'
@@ -161,7 +163,8 @@ class TCPRequestHandler(BaseRequestHandler):
             data = data + 'Acknowledgement sent along with below line.\n'
             data = data + packetData + '\n\n'
             helper.WriteToLogFile(pathToAnnJanLogFile, 'a', data)
-            print('AnnToJan: Execute\n' + 'The authorization code for the Airforce Headquarters:\n' + 'PEPPER THE PEPPER\n')
+            print('Urg pointer resived: ' + incomingPacketDecoded.get('Data'))
+            print('\nAnnToJan: Execute\n' + 'The authorization code for the Airforce Headquarters:\n' + 'PEPPER THE PEPPER\n')
 
         # When someone else is trying to setup connection with us
         elif Mission3Counter < 0:
@@ -274,6 +277,7 @@ class TCPRequestHandler(BaseRequestHandler):
                     data = datetime.datetime.fromtimestamp(timeStamp).strftime('%Y-%m-%d %H:%M:%S') + '\n'
                     data = data + 'Communication with Chan has been Terminated.\n\n'
                     helper.WriteToLogFile(pathToAnnJanLogFile, 'a', data)
+                    print('AnnToJan: Urg Pointer On: Communication with Chan has been compromised.')
                     
 
 
