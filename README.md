@@ -19,4 +19,5 @@ This project was developed in a Unix environment and written in Python 3.5. Ther
   specifies the termination of them.
 - It was assumed that Jan talks to Ann, Ann talks to Chan, and Chan talks to Jan.
 - The costs of communication among routers never change.
+- Mission 3 starts right after Chan gets terminated.
 
