@@ -141,7 +141,7 @@ class TCPRequestHandler(BaseRequestHandler):
             print('JanToAnn: The authorization code:\n' + 'Congratulations\n')
 
 
-        elif Mission3Counter == 2:
+        elif Mission3Counter == 2 and incomingPacketDecoded.get('Data') == 'PEPPER THE PEPPER\n':
             
             # increment the next position
             # need to see how to execute to router H
@@ -173,7 +173,7 @@ class TCPRequestHandler(BaseRequestHandler):
             data = data + 'Received following line.\n'
             data = data + incomingPacketDecoded.get('Data')
             data = data + 'Acknowledgement sent along with below line.\n'
-            #data = data + packetData + '\n\n'
+            data = data + packetData + '\n\n'
             helper.WriteToLogFile(pathToJanAirForceLogFile, 'a', data)
             Mission3Counter = 4
             print('JanToAirForce: Location of target: (32° 43 22.77 N,97° 9 7.53 W)\n' + 'The authorization code for the Airforce Headquarters:\n' + 'PEPPER THE PEPPER\n')

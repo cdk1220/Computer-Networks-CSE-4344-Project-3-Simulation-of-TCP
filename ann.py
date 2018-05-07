@@ -137,7 +137,7 @@ class TCPRequestHandler(BaseRequestHandler):
                                                                                          # Next byte of data that you want
             acknowledgementNumber = incomingPacketDecoded.get('Sequence Number')+ len(incomingPacketDecoded.get('Data'))
                                                                                          # authorize to execute and give code
-            packetData = 'Execute\n' + 'The authorization code for the Airforce Headquarters:\n' + 'PEPPER THE PEPPER\n' 
+            packetData = 'PEPPER THE PEPPER\n' 
             urgentPointer = 0                                                            # Not urgent as this is connection setup
             synBit = 0                                                                   # Syn bit is zero
             finBit = 0                                                                   # Not trying to finish connection, therefore 0                                               
