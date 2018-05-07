@@ -34,6 +34,7 @@ pathToJanAirForceLogFile = './Supplemental Text Files/Jan/JanAirForceLog.txt'
 # Clear log files at the start of the session
 helper.WriteToLogFile(pathToJanChanLogFile, 'w', '')
 helper.WriteToLogFile(pathToJanAnnLogFile, 'w', '')
+helper.WriteToLogFile(pathToJanAirForceLogFile, 'w', '')
 
 # Reading communication material from the text files
 contentJanToChan = helper.ReadFile(pathToJanToChanFile)
