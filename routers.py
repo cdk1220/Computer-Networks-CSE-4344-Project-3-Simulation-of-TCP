@@ -33,16 +33,22 @@ pathAnnToJan = helper.Dijkstras(graph,'F','A', visited=[], distances={}, predece
 pathAnnToJan.insert(0, 'Ann')
 pathAnnToJan.append('Jan')
 pathJanToAnn = pathAnnToJan[::-1]
+print("pathAnnToJan = " + str(pathAnnToJan))
+print("PathJanToAnn = "+ str(pathJanToAnn) + "\n\n")
 
 pathJanToChan = helper.Dijkstras(graph,'E','F', visited=[], distances={}, predecessors={})
 pathJanToChan.insert(0, 'Jan')
 pathJanToChan.append('Chan')
 pathChanToJan = pathJanToChan[::-1]
+print("pathJanToChan = "+ str(pathJanToChan))
+print("pathChanToJan = "+ str(pathChanToJan)+ "\n\n")
 
 pathAnnToChan = helper.Dijkstras(graph,'E','A', visited=[], distances={}, predecessors={})
 pathAnnToChan.insert(0, 'Ann')
 pathAnnToChan.append('Chan')
 pathChanToAnn = pathAnnToChan[::-1]
+print("pathAnnToChan = " + str(pathAnnToChan))
+print("pathChanToAnn = " + str(pathChanToAnn)+ "\n\n")
 
 # Everything should be local, make sure all ports are under this IP
 localHost = helper.localHost
